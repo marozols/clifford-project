@@ -1,14 +1,38 @@
 # Clifford Project
 
-An ongoing [Lean](https://lean-lang.org/) formalization of the structure theorem for the single-qudit Clifford group, based on Sections 2 and 3 of
+This is an ongoing [Lean](https://lean-lang.org/) formalization of the structure theorem for the single-qudit Clifford group, restricted to the case where the dimension $d$ is an odd prime.
+This formalization is based on Sections 2 and 3 of
 
 > D. M. Appleby, *SIC-POVMs and the Extended Clifford Group*,
 > [arXiv:quant-ph/0412001](https://arxiv.org/abs/quant-ph/0412001),
 > [J. Math. Phys. **46**, 052107 (2005)](https://doi.org/10.1063/1.1896384)
 
-For simplicity, we restrict to the case where the dimension $d$ is an odd prime.
+[Here](https://marozols.github.io/clifford-project/) is the latest HTML version of the blueprint.
 
-This project is part of the [Lean seminar](https://carli-b.github.io/lean-seminar/) at the University of Amsterdam, coordinated by [Maris Ozols](https://homepages.cwi.nl/~maris/) and [Carli Bruinsma](https://carli-b.github.io/).
+## Contributing
+
+This project is part of the [Lean seminar](https://carli-b.github.io/lean-seminar/) at CWI and the University of Amsterdam, coordinated by [Maris Ozols](https://homepages.cwi.nl/~maris/) and [Carli Bruinsma](https://carli-b.github.io/).
+All participants of the Lean seminar are welcome to contribute. Here is how to get started:
+
+- **Get push access:** Share your GitHub username on our Zulip channel so you can be added as a collaborator and push to the repository.
+
+- **First contribution:** Clone the repository and add your name to [CliffordProject/Authors.lean](CliffordProject/Authors.lean).
+
+- **What to work on?** Browse the [HTML blueprint](https://marozols.github.io/clifford-project/), its [summary](https://marozols.github.io/clifford-project/Blueprint-Summary/) or [dependency graph](https://marozols.github.io/clifford-project/Dependency-Graph/) to find where to contribute.
+
+- **Coordination:** Use our private Zulip channel to coordinate efforts and ask questions if you run into any problems.
+
+- **Claim ownership:** Before you start working on an item, mark it as yours by adding the `(owner := "Your_Name")` tag to it in the blueprint. This prevents duplicate effort.
+
+- **Natural language first:** Every item should have both a natural language statement and a Lean formalization. If you are formalizing a proof — even a very simple one — first make sure a natural language version exists, is complete, and easy to follow. Most simple lemmas in the blueprint do not yet have natural language proofs, so you will likely need to write one before you start formalizing it.
+
+- **Change everything!** You are encouraged to modify everything — definitions, lemmas, and even the main theorems — both their natural language statements as well as Lean formalizations.
+
+- **Adding new items:** Feel free to add new items as needed. While the overall proof has been pre-digested, adding well-chosen auxiliary lemmas can make formalization significantly easier. In particular, feel free to break down larger items (especially theorems) into sequences of smaller intermediate lemmas.
+
+- **Keeping things building:** It is fine to leave `sorry`s in your contribution, but please make sure your code type-checks since every commit triggers a GitHub Action that regenerates the [HTML blueprint](https://marozols.github.io/clifford-project/). It is advisable to first [build the HTML locally](#building-the-html-site) to make sure your contribution does not break anything.
+
+- **AI use:** This project could easily be auto-formalized with AI, but that is not our intention — the goal is to learn Lean. Please do the formalization by hand, using AI only for assistance if you get stuck.
 
 ## Overview
 
@@ -27,7 +51,7 @@ The formalization is organized into the following chapters (in [CliffordProject/
 
 ## Verso Blueprint
 
-This project uses [Verso Blueprint](https://github.com/leanprover/verso-blueprint), a Lean package for blueprints that is built upon [Verso](https://verso.lean-lang.org/), which allows to interleave informal mathematical exposition with formal Lean proofs.
+This project uses [Verso Blueprint](https://github.com/leanprover/verso-blueprint), a Lean package for blueprints that is built upon [Verso](https://verso.lean-lang.org/), which allows one to interleave informal mathematical exposition with formal Lean proofs.
 The top-level document is [CliffordProject/Blueprint.lean](CliffordProject/Blueprint.lean).
 
 ### Building the HTML site
@@ -45,7 +69,7 @@ lake build CliffordProject
 lake env lean --run CliffordProjectMain.lean --output _out/site
 ```
 
-### Viewing it
+### Viewing it locally
 
 The generated HTML is written to `_out/site/html-multi/`. Because the site uses absolute paths, it must be served via a local HTTP server rather than opened as plain files. Use Python's built-in server:
 
@@ -55,10 +79,6 @@ python3 -m http.server
 ```
 
 Then open [http://127.0.0.1:8000/](http://127.0.0.1:8000/) in your browser.
-
-### GitHub Pages
-
-The repository includes `.github/workflows/pages.yml`, which builds and deploys the site to GitHub Pages on every push to `main`. On pull requests it builds the site and uploads it as an artifact. You may need to enable GitHub Pages (with GitHub Actions as the publishing source) once in your repository settings.
 
 ## Dependencies
 
