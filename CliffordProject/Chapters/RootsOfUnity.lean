@@ -84,8 +84,23 @@ $`τ^d = (-\exp(πi/d))^d = (-1)^d · (\exp(πi/d))^d = (-1)^d · \exp(πi) = (-
 :::
 
 ```lean "tau_pow_d_eq_one_of_odd"
-lemma tau_pow_d_eq_one (hodd : Odd d) : τ^d = 1 :=
-  sorry
+lemma tau_pow_d_eq_one (hodd : Odd d) : (τ d)^d = 1 := by
+  calc
+    (-Complex.exp (↑Real.pi * Complex.I * (↑d)⁻¹)) ^ d = (-1 : ℂ)^d * Complex.exp (↑Real.pi * Complex.I * (↑d)⁻¹) ^ d := by
+      ring_nf
+    _ = (-1 : ℂ)^d * Complex.exp (↑Real.pi * Complex.I) := by
+      rw [← Complex.exp_nat_mul (↑Real.pi * Complex.I * (↑d)⁻¹) d]
+      rw [← mul_assoc, mul_comm (↑d) (↑Real.pi * Complex.I), mul_assoc]
+      rw [mul_inv_cancel₀  (NeZero.natCast_ne d ℂ), mul_one]
+    _ = (-1)^(d+1) := by
+      rw [Complex.exp_pi_mul_I, Eq.symm (pow_succ (-1) d)]
+    _ = 1 := by
+      apply (neg_one_pow_eq_one_iff_even ?_).mpr
+      · obtain ⟨k, hk⟩ := hodd
+        unfold Even
+        use (k + 1)
+        rw [hk, mul_comm 2, Nat.mul_two, add_assoc k, add_comm k, ← add_assoc]
+      · norm_num
 ```
 
 :::lemma_ "tau_pow_d_sq_eq_one" (parent := "roots_of_unity") (effort := "small")
