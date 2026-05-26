@@ -75,7 +75,7 @@ lemma tau_sq_eq_omega : τ^2 = ω :=
   sorry
 ```
 
-:::lemma_ "tau_pow_d_eq_one_of_odd" (parent := "roots_of_unity") (effort := "small")
+:::lemma_ "tau_pow_d_eq_one_of_odd" (parent := "roots_of_unity") (effort := "small") (owner := "Carli_Bruinsma")
 If $`d` is odd then $`τ^d = 1`.
 :::
 
