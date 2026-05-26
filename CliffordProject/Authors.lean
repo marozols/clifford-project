@@ -22,3 +22,6 @@ open Informal
 
 :::author "Rik Heurter" (name := "Rik Heurter")
 :::
+
+:::author "Carli Bruinsma" (name := "Carli Bruinsma")
+:::
