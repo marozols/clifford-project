@@ -13,3 +13,6 @@ open Informal
 
 :::author "Christian_Schaffner" (name := "Christian Schaffner") (url := "https://staff.science.uva.nl/c.schaffner/") (image_url := "https://staff.science.uva.nl/c.schaffner/static/img/chris.jpeg")
 :::
+
+:::author "Gina Muuss" (name := "Gina Muuss")
+:::
