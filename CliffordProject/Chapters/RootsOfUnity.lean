@@ -62,7 +62,7 @@ def τ : ℂ :=
   - Complex.exp (Real.pi * Complex.I / d)
 ```
 
-:::lemma_ "tau_sq_eq_omega" (parent := "roots_of_unity") (effort := "small")
+:::lemma_ "tau_sq_eq_omega" (parent := "roots_of_unity") (effort := "small") (owner := "Christian_Schaffner")
 $`τ^2 = ω`.
 :::
 
