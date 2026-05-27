@@ -71,14 +71,55 @@ noncomputable def Z : Matrix (ZMod d) (ZMod d) ℂ :=
 
 The Pauli $`Z` matrix also has order $`d`.
 
-:::lemma_ "Z_pow_d_eq_one" (parent := "Pauli_core")
+:::lemma_ "Z_pow_d_eq_one" (parent := "Pauli_core") (owner := "Carli_Bruinsma")
 The $`d`-th power of the $`d`-dimensional Pauli $`Z` matrix is the identity matrix:
 $$`Z^d = I.`
 :::
 
 ```lean "Z_pow_d_eq_one"
-lemma Z_pow_d_eq_one : Z d ^ d = 1 := by
+lemma Z_pow_d_eq_one : (Z d) ^ d = 1 := by
+  unfold Z
+  have hZ : ∀ (n : ℕ) (i j : ZMod d),
+    ((Z d) ^ (n + 1)) i j =
+    (if i = j then ω d ^ (i.val * (n + 1)) else 0) := by
+    intro n
+    induction n with
+    | zero =>
+      intro i j
+      rw [zero_add, pow_one, mul_one]
+      rfl
+    | succ n hn =>
+      intro i j
+      rw [pow_succ, Matrix.mul_apply]
+      simp_rw [hn]
+      have h : ∀ (x : ZMod d), x ≠ j →
+          Z d x j = 0 := by
+        rintro x hx
+        unfold Z
+        simp
+        intro hx2
+        contradiction
+      have h2 : ∀ (x : ZMod d), x ≠ j →
+          (if i = x then ω d ^ (i.val * (n + 1)) else 0)
+          * Z d x j = 0 := by
+        rintro x hx
+        specialize h x hx
+        rw [h, mul_zero]
+      rw [Fintype.sum_eq_single j h2]
+      simp
+      sorry
+
+  ext i j
+  have hd1 : 1 ≤ d := NeZero.one_le
+  apply Nat.sub_add_cancel at hd1
+  symm at hd1
+
+  -- rw [hd1]
+  -- apply hZ (d - 1) i j
   sorry
+
+
+
 ```
 
 Pauli $`X` and $`Z` commute up to a phase.
