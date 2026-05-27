@@ -46,7 +46,7 @@ $`ω^d = (\exp(2πi/d))^d = \exp(2πid/d) = \exp(2πi) = 1`.
 :::
 
 ```lean "omega_pow_d_eq_one"
-lemma omega_pow_d_eq_one : ω^d = 1 :=
+lemma omega_pow_d_eq_one : (ω d)^d = 1 :=
   sorry
 ```
 
@@ -71,7 +71,7 @@ $`τ^2 = (-\exp(πi/d))^2 = (-1)^2 · (\exp(πi/d))^2 = 1 · \exp(2πi/d) = ω`.
 :::
 
 ```lean "tau_sq_eq_omega"
-lemma tau_sq_eq_omega : τ^2 = ω :=
+lemma tau_sq_eq_omega : (τ d)^2 = ω d := by
   sorry
 ```
 
@@ -123,6 +123,6 @@ since either $`d` or $`d+1` is even.
 :::
 
 ```lean "tau_pow_d_sq_eq_one"
-lemma tau_pow_d2_one : τ d ^ d ^ 2 = 1 :=
+lemma tau_pow_d2_one : (τ d) ^ (d ^ 2) = 1 :=
   sorry
 ```
