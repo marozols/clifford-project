@@ -86,12 +86,21 @@ $`τ^d = (-\exp(πi/d))^d = (-1)^d · (\exp(πi/d))^d = (-1)^d · \exp(πi) = (-
 ```lean "tau_pow_d_eq_one_of_odd"
 lemma tau_pow_d_eq_one (hodd : Odd d) : (τ d)^d = 1 := by
   calc
-    (-Complex.exp (↑Real.pi * Complex.I * (↑d)⁻¹)) ^ d = (-1 : ℂ)^d * Complex.exp (↑Real.pi * Complex.I * (↑d)⁻¹) ^ d := by
-      ring_nf
-    _ = (-1 : ℂ)^d * Complex.exp (↑Real.pi * Complex.I) := by
-      rw [← Complex.exp_nat_mul (↑Real.pi * Complex.I * (↑d)⁻¹) d]
-      rw [← mul_assoc, mul_comm (↑d) (↑Real.pi * Complex.I), mul_assoc]
-      rw [mul_inv_cancel₀  (NeZero.natCast_ne d ℂ), mul_one]
+    (-Complex.exp (↑Real.pi * Complex.I * (↑d)⁻¹)) ^ d
+        = (-1 : ℂ)^d *
+        Complex.exp (↑Real.pi *
+        Complex.I * (↑d)⁻¹) ^ d := by
+      rw [← mul_neg_one, mul_comm, mul_pow]
+    _ = (-1 : ℂ)^d *
+        Complex.exp (↑Real.pi *
+        Complex.I * ↑d * (↑d)⁻¹) := by
+      rw [← Complex.exp_nat_mul
+        (↑Real.pi * Complex.I * (↑d)⁻¹) d,
+        ← mul_assoc, mul_comm (↑d) (↑Real.pi * Complex.I)]
+    _ = (-1 : ℂ)^d *
+        Complex.exp (↑Real.pi * Complex.I) := by
+      rw [mul_assoc,
+        mul_inv_cancel₀  (NeZero.natCast_ne d ℂ), mul_one]
     _ = (-1)^(d+1) := by
       rw [Complex.exp_pi_mul_I, Eq.symm (pow_succ (-1) d)]
     _ = 1 := by
@@ -99,7 +108,8 @@ lemma tau_pow_d_eq_one (hodd : Odd d) : (τ d)^d = 1 := by
       · obtain ⟨k, hk⟩ := hodd
         unfold Even
         use (k + 1)
-        rw [hk, mul_comm 2, Nat.mul_two, add_assoc k, add_comm k, ← add_assoc]
+        rw [hk, mul_comm 2, Nat.mul_two,
+         add_assoc k, add_comm k, ← add_assoc]
       · norm_num
 ```
 
