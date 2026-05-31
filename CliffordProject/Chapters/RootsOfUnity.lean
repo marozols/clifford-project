@@ -37,17 +37,22 @@ def ω : ℂ :=
   Complex.exp (2 * Real.pi * Complex.I / d)
 ```
 
-:::lemma_ "omega_pow_d_eq_one" (parent := "roots_of_unity") (effort := "small")
+:::lemma_ "omega_pow_d_eq_one" (parent := "roots_of_unity") (effort := "small") (owner := "Maris_Ozols")
 $`ω^d = 1`.
 :::
 
 :::proof "omega_pow_d_eq_one"
-$`ω^d = (\exp(2πi/d))^d = \exp(2πid/d) = \exp(2πi) = 1`.
+$`ω^d = (\exp(2πi/d))^d = \exp(d(2πi/d)) = \exp(2πi) = 1` where we could cancel $`d` since $`d ≠ 0`.
 :::
 
 ```lean "omega_pow_d_eq_one"
-lemma omega_pow_d_eq_one : (ω d)^d = 1 :=
-  sorry
+lemma omega_pow_d_eq_one : (ω d)^d = 1 := by
+  unfold ω
+  rw [← Complex.exp_nat_mul]
+  rw [IsUnit.mul_div_cancel]
+  · exact Complex.exp_two_pi_mul_I
+  · simp only [isUnit_iff_ne_zero, ne_eq, Nat.cast_eq_zero]
+    exact NeZero.ne d
 ```
 
 We will also need another root of unity which we call $`τ`.
