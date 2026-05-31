@@ -25,6 +25,20 @@ Throughout this section we assume that $`d ≥ 1`.
 variable (d : ℕ) [NeZero d]
 ```
 
+:::lemma_ "d_invertible" (parent := "roots_of_unity") (effort := "small") (owner := "Maris_Ozols")
+$`d` is invertible in $`ℂ`.
+:::
+
+:::proof "d_invertible"
+The inverse of $`d` exists since $`d ∈ ℕ` and $`d ≠ 0`.
+:::
+
+```lean "d_invertible"
+lemma d_invertible : IsUnit (d : ℂ) := by
+  simp only [isUnit_iff_ne_zero, ne_eq, Nat.cast_eq_zero]
+  exact NeZero.ne d
+```
+
 Define the primitive $`d`-th root of unity.
 
 :::definition "omega" (parent := "roots_of_unity") (owner := "Maris_Ozols")
@@ -51,8 +65,7 @@ lemma omega_pow_d_eq_one : (ω d)^d = 1 := by
   rw [← Complex.exp_nat_mul]
   rw [IsUnit.mul_div_cancel]
   · exact Complex.exp_two_pi_mul_I
-  · simp only [isUnit_iff_ne_zero, ne_eq, Nat.cast_eq_zero]
-    exact NeZero.ne d
+  · exact d_invertible d
 ```
 
 We will also need another root of unity which we call $`τ`.
@@ -118,7 +131,7 @@ lemma tau_pow_d_eq_one (hodd : Odd d) : (τ d)^d = 1 := by
       · norm_num
 ```
 
-:::lemma_ "tau_pow_d_sq_eq_one" (parent := "roots_of_unity") (effort := "small")
+:::lemma_ "tau_pow_d_sq_eq_one" (parent := "roots_of_unity") (effort := "small") (owner := "Maris_Ozols")
 $`τ^{d^2} = 1`.
 :::
 
@@ -128,6 +141,21 @@ since either $`d` or $`d+1` is even.
 :::
 
 ```lean "tau_pow_d_sq_eq_one"
-lemma tau_pow_d2_one : (τ d) ^ (d ^ 2) = 1 :=
-  sorry
+lemma tau_pow_d2_one : (τ d) ^ (d ^ 2) = 1 := by
+  unfold τ
+  rw [← neg_one_mul]
+  rw [pow_two]
+  rw [mul_pow]
+  rw [← Complex.exp_nat_mul]
+  rw [Nat.cast_mul]
+  rw [mul_assoc]
+  rw [IsUnit.mul_div_cancel]
+  rw [Complex.exp_nat_mul]
+  rw [Complex.exp_pi_mul_I]
+  rw [← pow_add]
+  rw [← mul_add_one]
+  rw [neg_one_pow_eq_one_iff_even]
+  exact Nat.even_mul_succ_self d
+  · norm_num
+  · exact d_invertible d
 ```
