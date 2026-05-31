@@ -40,10 +40,22 @@ def symp (p q : ZMod d × ZMod d) : ZMod d :=
 
 The symplectic inner product is antisymmetric.
 
-:::lemma_ "symp_antisymmetric" (parent := "symplectic_form") (effort := "small")
+:::lemma_ "symp_antisymmetric" (parent := "symplectic_form") (effort := "small") (owner := "Maris_Ozols")
 For all $`\p,\q ∈ ℤ_d^2`,
 $`\braket{\p,\q} = -\braket{\q,\p}.`
 :::
+
+:::proof "symp_antisymmetric"
+$`\braket{\p,\q} = p_2 q_1 - p_1 q_2 = - (q_2 p_1 - q_1 p_2) = -\braket{\q,\p}.`
+:::
+
+```lean "symp_antisymmetric"
+omit [NeZero d] in
+lemma symp_antisymmetric (p q : ZMod d × ZMod d) :
+    symp d p q = - symp d q p := by
+  unfold symp
+  ring
+```
 
 Every vector is isotropic under the symplectic inner product.
 
