@@ -26,5 +26,5 @@ open Informal
 :::author "Carli_Bruinsma" (name := "Carli Bruinsma")  (image_url := "https://sp-ao.shortpixel.ai/client/to_auto,q_glossy,ret_img,w_2347/https://qusoft.org/wp-content/uploads/2026/02/QuSoft__Carli_Bruinsma_Portrait_MK3_6628.jpg")
 :::
 
-:::author "Joppe Stokvis" (name := "Joppe Stokvis")
+:::author "Joppe_Stokvis" (name := "Joppe Stokvis")
 :::

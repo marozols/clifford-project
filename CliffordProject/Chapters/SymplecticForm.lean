@@ -59,7 +59,7 @@ lemma symp_antisymmetric (p q : ZMod d × ZMod d) :
 
 Every vector is isotropic under the symplectic inner product.
 
-:::lemma_ "self_eq_zero" (parent := "symplectic_form") (effort := "small")
+:::lemma_ "self_eq_zero" (parent := "symplectic_form") (effort := "small") (owner := "Joppe_Stokvis")
 For any $`\p ∈ ℤ_d^2`,
 $`\braket{\p,\p} = 0.`
 :::
@@ -69,8 +69,9 @@ $`\braket{\p,\p} = p_2 p_1 - p_1 p_2 = 0.`
 :::
 
 ```lean "self_eq_zero"
-lemma self_eq_zero (p : ZMod d × ZMod d) : symp d p p = 0 :=
-  sorry
+lemma self_eq_zero (p : ZMod d × ZMod d) : symp d p p = 0 := by
+  unfold symp
+  ring
 ```
 
 The symplectic inner product is additive in the first argument.
