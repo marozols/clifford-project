@@ -112,8 +112,7 @@ lemma tau_pow_d_eq_one (hodd : Odd d) : (τ d)^d = 1 := by
     _ = (-1 : ℂ)^d *
         Complex.exp (↑Real.pi *
         Complex.I * ↑d * (↑d)⁻¹) := by
-      rw [← Complex.exp_nat_mul
-        (↑Real.pi * Complex.I * (↑d)⁻¹) d,
+      rw [← Complex.exp_nat_mul,
         ← mul_assoc, mul_comm (↑d) (↑Real.pi * Complex.I)]
     _ = (-1 : ℂ)^d *
         Complex.exp (↑Real.pi * Complex.I) := by
