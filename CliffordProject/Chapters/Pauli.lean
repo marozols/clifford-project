@@ -44,6 +44,49 @@ def X : Matrix (ZMod d) (ZMod d) ℂ :=
   Matrix.of fun i j => if j + 1 = i then 1 else 0
 ```
 
+Powers of the Pauli $`X` matrix.
+
+:::lemma_ "X_pow_n" (parent := "Pauli_core") (owner := "Carli_Bruinsma")
+The $`n`-th power of the $`d`-dimensional Pauli $`X` matrix acts on basis vectors as
+$$`X^n \ket{k} = \ket{k + n \mod d}.`
+:::
+
+```lean "X_pow_n"
+lemma X_pow_pos_n (n : ℕ) : X d ^ n =
+    Matrix.of (fun i j => if j + (n : ZMod d) = i then 1
+    else 0) := by
+  induction n with
+  | zero =>
+    ext i j
+    have hij : i = j ↔ j = i := ⟨Eq.symm, Eq.symm⟩
+    simp [pow_zero, Matrix.one_apply, hij]
+  | succ n hind =>
+    ext i j
+    rw [pow_succ, hind, Matrix.mul_apply]
+    have hfun : ∀ (x : ZMod d), x ≠ (j + (1 : ZMod d)) →
+        X d x j = 0 := by
+      unfold X
+      intro x h
+      simp
+      by_contra h'
+      symm at h'
+      contradiction
+    have hfun'  : ∀ (x : ZMod d), x ≠ (j + (1 : ZMod d)) →
+        Matrix.of (fun i j => if j + (n : ZMod d) = i
+        then 1 else 0) i x * X d x j = 0 := by
+        intro x h
+        specialize hfun x h
+        rw [hfun, mul_zero]
+    rw [Fintype.sum_eq_single (j + 1) hfun']
+    by_cases h : j + ((n + 1) : ZMod d) = i <;>
+      simp [h];
+      rw [add_comm (n : ZMod d), ← add_assoc] at h;
+      simp [h, X]
+    intro hj
+    rw [add_assoc, add_comm 1] at hj
+    contradiction
+```
+
 The Pauli $`X` matrix has order $`d`.
 
 :::lemma_ "X_pow_d_eq_one" (parent := "Pauli_core")
