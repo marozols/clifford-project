@@ -35,7 +35,7 @@ variable (d : ℕ) [NeZero d]
 
 We use the generalized Pauli $`X` and $`Z` to define the displacement operators, see Eq. (8) in {citet Appleby}[].
 
-:::definition "displacement" (parent := "displacement_core")
+:::definition "displacement" (parent := "displacement_core") (effort := "small") (owner := "Maris_Ozols")
 The *displacement operator* corresponding to $`x,z ∈ ℤ` is defined as
 $$`D_{x,z} = τ^{xz} X^x Z^z`
 where $`τ` comes from {uses "tau"}[], $`X` comes from {uses "Pauli_X"}[], and $`Z` comes from {uses "Pauli_Z"}[].
@@ -44,7 +44,7 @@ where $`τ` comes from {uses "tau"}[], $`X` comes from {uses "Pauli_X"}[], and $
 ```lean "displacement"
 noncomputable def D
   (x z : ℤ) : Matrix (ZMod d) (ZMod d) ℂ :=
-  sorry
+  (τ d)^(x * z) • (X d)^(x % d).toNat * (Z d)^(z % d).toNat
 ```
 
 Displacement operators behave nicely under complex conjugation, see Eq. (9) in {citet Appleby}[].
