@@ -22,7 +22,7 @@ open Informal
 
 #doc (Manual) "Clifford project" =>
 
-This is a blueprint for the *Clifford project* whose goal is to formalize the structure theorem of the single-qudit Clifford group based on {citet Appleby}[].
+This is a blueprint for the *[Clifford project](https://github.com/marozols/clifford-project)* whose goal is to formalize the structure theorem of the single-qudit Clifford group based on {citet Appleby}[].
 This formalization is work in progress and is done by participants of the
 [Lean seminar](https://carli-b.github.io/lean-seminar/)
 at the University of Amsterdam.
