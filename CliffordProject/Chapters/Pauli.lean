@@ -89,14 +89,18 @@ lemma X_pow_pos_n (n : ℕ) : X d ^ n =
 
 The Pauli $`X` matrix has order $`d`.
 
-:::lemma_ "X_pow_d_eq_one" (parent := "Pauli_core")
+:::lemma_ "X_pow_d_eq_one" (parent := "Pauli_core")  (owner := "Gina_Muuss")
 The $`d`-th power of the $`d`-dimensional Pauli $`X` matrix is the identity matrix:
 $$`X^d = I.`
 :::
 
 ```lean "X_pow_d_eq_one"
 lemma X_pow_d_eq_one : X d ^ d = 1 := by
-  sorry
+  rw [X_pow_pos_n]
+  ext i j
+  simp only [CharP.cast_eq_zero, add_zero, Matrix.of_apply]
+  simp only [eq_comm]
+  rfl
 ```
 
 The generalized Pauli $`Z` matrix is diagonal and introduces a phase $`ω` to each standard basis vector $`\ket{k}`.
