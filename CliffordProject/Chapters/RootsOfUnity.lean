@@ -68,6 +68,21 @@ lemma omega_pow_d_eq_one : (ω d)^d = 1 := by
   · exact d_invertible d
 ```
 
+This is an additional corrolary that is nice to have.
+
+:::lemma_ "omega_pow_k_mod_d_eq_pow_k" (parent := "roots_of_unity") (effort := "small") (owner := "Gina_Muuss")
+$`ω^{k \% d} = ω^k`.
+:::
+
+```lean "omega_pow_k_mod_d_eq_pow_k"
+lemma omega_pow_k_mod_d_eq_pow_k :
+  ∀ k : Nat, (ω d) ^ k = (ω d) ^ (k % d) := by
+    intro k
+    nth_rw 1 [←(Nat.mod_add_div k d)]
+    rw [pow_add, pow_mul, omega_pow_d_eq_one,
+      one_pow, mul_one]
+```
+
 We will also need another root of unity which we call $`τ`.
 
 :::definition "tau" (parent := "roots_of_unity") (owner := "Maris_Ozols")

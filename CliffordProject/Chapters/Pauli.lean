@@ -136,13 +136,29 @@ lemma Z_pow_d_eq_one : (Z d) ^ d = 1 := by
 
 Pauli $`X` and $`Z` commute up to a phase.
 
-:::lemma_ "ZX_eq_omega_mul_XZ" (parent := "Pauli_core")
+:::lemma_ "ZX_eq_omega_mul_XZ" (parent := "Pauli_core") (owner := "Gina_Muuss")
 Pauli $`X` and $`Z` matrices satisfy the following commutation relation:
 $$`Z X = ω X Z.`
 :::
 
 ```lean "ZX_eq_omega_mul_XZ"
+#check pow_mod_orderOf
 lemma ZX_eq_omega_mul_XZ :
   Z d * X d = ω d • (X d * Z d) := by
-  sorry
+  ext i j
+  rw [Matrix.mul_apply, Matrix.smul_apply, Matrix.mul_apply]
+  unfold X Z
+  simp only [Matrix.of_apply, mul_ite, mul_one,
+    mul_zero, Finset.sum_ite_eq, Finset.mem_univ,
+    ↓reduceIte, ite_mul, one_mul, zero_mul,
+    Finset.sum_ite_eq', smul_eq_mul]
+  simp only [eq_comm]
+  by_cases h : i = j + 1
+  /- Case 1: h : i = j + 1-/
+  . rw [if_pos h, if_pos h, h, ← pow_succ', ZMod.val_add,
+    (omega_pow_k_mod_d_eq_pow_k d (j.val + 1)),
+    ZMod.val_one_eq_one_mod, Nat.add_mod_mod]
+  /- Case 2: h : i ≠ j + 1-/
+  rw [if_neg h, if_neg h]
+
 ```
