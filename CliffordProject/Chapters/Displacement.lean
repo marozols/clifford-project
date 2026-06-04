@@ -7,6 +7,8 @@ import Mathlib.Data.ZMod.Basic
 import Mathlib.Data.Complex.Basic
 import Mathlib.LinearAlgebra.Matrix.ConjTranspose
 import Mathlib.Analysis.SpecialFunctions.Complex.Circle
+import Mathlib.LinearAlgebra.UnitaryGroup
+
 
 import CliffordProject.LaTeXMacros
 import CliffordProject.Authors
@@ -120,7 +122,7 @@ lemma D_pow_d_eq_one (p : ℤ × ℤ) :
   sorry
 ```
 
-Displacement oeprators with different $`\p` (modulo $`d`) are indeed different.
+Displacement operators with different $`\p` (modulo $`d`) are indeed different.
 
 :::lemma_ "D_p_neq_D_q" (parent := "displacement_core") (effort := "medium")
 Let $`\p,\q \in ℤ^2` and assume $`α,β ∈ ℂ` are both non-zero.
@@ -136,6 +138,17 @@ The *generalized Pauli group* or *discrete Weyl–Heisenberg group* consists of
 $$`\GP(d) = \{τ^a D_\p : a ∈ ℤ_d, \p ∈ ℤ_d^2\}`
 where $`τ` is from {uses "tau"}[] and $`D_\p` is from {uses "displacement"}[].
 :::
+
+```lean "Pauli_group"
+def pauliGroup (d : ℕ) [NeZero d] :
+    Subgroup (Matrix.unitaryGroup (ZMod d) ℂ) where
+  carrier := {U | ∃ (a : ZMod d) (p : ZMod d × ZMod d),
+    (U : Matrix (ZMod d) (ZMod d) ℂ) =
+      (τ d) ^ a.val • D d (p.1.val : ℤ) (p.2.val : ℤ)}
+  one_mem' := sorry
+  mul_mem' := sorry
+  inv_mem' := sorry
+```
 
 We could have equivalently written
 $$`\GP(d) = \{τ^a X^x Z^z : a,x,z ∈ ℤ_d\}`
