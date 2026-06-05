@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-lake build CliffordProject
+lake build CliffordProject.Blueprint
 lake env lean --run CliffordProjectMain.lean --output _out/site
 
 test -f _out/site/html-multi/index.html
