@@ -36,16 +36,6 @@ jobs:
           submodules: recursive
       - if: ${{ !inputs.checkout_submodules }}
         uses: actions/checkout@v4
-      - name: Free disk space # removes
-        uses: jlumbroso/free-disk-space@v1.3.1
-        with:
-          tool-cache: false     # enable if more savings needed (removes various tools)
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: false # enable if more savings needed (slow since uses apt-get remove)
-          docker-images: true
-          swap-storage: true
       - uses: actions/configure-pages@v5
       - name: Install elan
         run: |
