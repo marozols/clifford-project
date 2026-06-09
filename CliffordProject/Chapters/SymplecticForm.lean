@@ -104,15 +104,17 @@ lemma symp_add_right
 
 Constants can be pulled out of the first argument.
 
-:::lemma_ "symp_smul_left" (parent := "symplectic_form") (effort := "small")
+:::lemma_ "symp_smul_left" (parent := "symplectic_form") (effort := "small") (owner := "William_Hasley")
 For all $`c ∈ ℤ_d` and $`\p, \q ∈ ℤ_d^2`,
 $$`\braket{c\p, \q} = c\braket{\p,\q}.`
 :::
 
 ```lean "symp_smul_left"
+omit [NeZero d] in
 lemma symp_smul_left
     (c : ZMod d) (p q : ZMod d × ZMod d) :
-    symp d (c • p) q = c * symp d p q := sorry
+    symp d (c • p) q = c * symp d p q :=
+      by unfold symp; simp; ring
 ```
 
 Constants can be pulled out of the second argument.
