@@ -112,14 +112,25 @@ lemma D_add_nsmul (p q : ℤ × ℤ) (hodd : Odd d) :
 If $`d` is odd, the index $`\p` of a displacement operator $`D_\p` can be treated modulo $`d`.
 In other words, it makes sense to write $`\p \in ℤ_d^2`.
 
-:::lemma_ "D_mod_d" (parent := "displacement_core") (effort := "small")
+:::lemma_ "D_mod_d" (parent := "displacement_core") (effort := "small") (owner := "William_Hasley")
 For all $`\p \in ℤ^2`,
 $$`D_\p = D_{\p \pmod d}.`
 :::
 
+:::proof "D_mod_d"
+This is a direct consequence of {uses "D_add_nsmul"}[]
+:::
+
+```lean "D_mod_d"
+lemma D_mod_d (p : ℤ × ℤ) :
+    D d p.1 p.2 = D d (p.1 % d) (p.2 % d) :=
+    by unfold D; sorry
+```
+
+
 The displacement operators have order $`d`.
 
-:::lemma_ "D_pow_d_eq_one" (parent := "displacement_core") (effort := "small")
+:::lemma_ "D_pow_d_eq_one" (parent := "displacement_core") (effort := "small") (owner := "William_Hasley")
 For all $`\p \in ℤ^2`,
 $$`D_\p^d = I.`
 :::
@@ -131,7 +142,7 @@ By {uses "D_pow_nsmul"}[], $`D_\p^d = D_{d\p} = D_\mathbf{0} = I`, using $`d\p =
 ```lean "D_pow_d_eq_one"
 lemma D_pow_d_eq_one (p : ℤ × ℤ) :
     D d p.1 p.2 ^ d = 1 :=
-  sorry
+    by rw [D_pow_nsmul]; sorry
 ```
 
 Displacement operators with different $`\p` (modulo $`d`) are indeed different.
