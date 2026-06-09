@@ -202,7 +202,7 @@ lemma D_p_neq_D_q
 
 Displacement operators with phases that are arbitrary powers of $`τ` form a group.
 
-:::definition "Pauli_group" (parent := "displacement_core")
+:::definition "Pauli_group" (parent := "displacement_core") (owner := "William_Hasley")
 The *generalized Pauli group* or *discrete Weyl–Heisenberg group* consists of
 $$`\GP(d) = \{τ^a D_\p : a ∈ ℤ_d, \p ∈ ℤ_d^2\}`
 where $`τ` is from {uses "tau"}[] and $`D_\p` is from {uses "displacement"}[].
