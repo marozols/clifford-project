@@ -51,7 +51,7 @@ noncomputable def D
 
 Displacement operators behave nicely under complex conjugation, see Eq. (9) in {citet Appleby}[].
 
-:::lemma_ "D_conj" (parent := "displacement_core") (effort := "small")
+:::lemma_ "D_conj" (parent := "displacement_core") (effort := "small")  (owner := "Gina_Muuss")
 For all $`x,z ∈ ℤ`,
 $$`D_{x,z}^† = D_{-x,-z}`
 where $`\dagger` denotes the conjugate transpose.
@@ -73,7 +73,7 @@ where $`τ` is the root of unity from {uses "tau"}[] and $`\braket{\cdot,\cdot}`
 
 The $`n`-th power of a displacement operator is again a displacement operator.
 
-:::lemma_ "D_pow_nsmul" (parent := "displacement_core") (effort := "small")
+:::lemma_ "D_pow_nsmul" (parent := "displacement_core") (owner := "Joppe_Stokvis")
 For all $`\p \in ℤ^2` and $`n \geq 0`,
 $$`D_\p^n = D_{n\p}.`
 :::
