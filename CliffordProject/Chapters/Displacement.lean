@@ -7,6 +7,8 @@ import Mathlib.Data.ZMod.Basic
 import Mathlib.Data.Complex.Basic
 import Mathlib.LinearAlgebra.Matrix.ConjTranspose
 import Mathlib.Analysis.SpecialFunctions.Complex.Circle
+import Mathlib.LinearAlgebra.UnitaryGroup
+
 
 import CliffordProject.LaTeXMacros
 import CliffordProject.Authors
@@ -35,7 +37,7 @@ variable (d : ℕ) [NeZero d]
 
 We use the generalized Pauli $`X` and $`Z` to define the displacement operators, see Eq. (8) in {citet Appleby}[].
 
-:::definition "displacement" (parent := "displacement_core")
+:::definition "displacement" (parent := "displacement_core") (effort := "small") (owner := "Maris_Ozols")
 The *displacement operator* corresponding to $`x,z ∈ ℤ` is defined as
 $$`D_{x,z} = τ^{xz} X^x Z^z`
 where $`τ` comes from {uses "tau"}[], $`X` comes from {uses "Pauli_X"}[], and $`Z` comes from {uses "Pauli_Z"}[].
@@ -44,12 +46,12 @@ where $`τ` comes from {uses "tau"}[], $`X` comes from {uses "Pauli_X"}[], and $
 ```lean "displacement"
 noncomputable def D
   (x z : ℤ) : Matrix (ZMod d) (ZMod d) ℂ :=
-  sorry
+  (τ d)^(x * z) • (X d)^(x % d).toNat * (Z d)^(z % d).toNat
 ```
 
 Displacement operators behave nicely under complex conjugation, see Eq. (9) in {citet Appleby}[].
 
-:::lemma_ "D_conj" (parent := "displacement_core") (effort := "small")
+:::lemma_ "D_conj" (parent := "displacement_core") (effort := "small")  (owner := "Gina_Muuss")
 For all $`x,z ∈ ℤ`,
 $$`D_{x,z}^† = D_{-x,-z}`
 where $`\dagger` denotes the conjugate transpose.
@@ -63,7 +65,7 @@ lemma conjTranspose_D (x z : ℤ) :
 
 Multiplication of displacement operators corresponds to adding their subscripts and introducing a phase given by the symplectic inner product, see Eq. (10) in {citet Appleby}[].
 
-:::lemma_ "D_mul" (parent := "displacement_core") (effort := "small")
+:::lemma_ "D_mul" (parent := "displacement_core") (effort := "small") (owner := "Daan_Planken")
 For all $`\p, \q ∈ ℤ^2`,
 $$`D_\p D_\q = τ^{\braket{\p,\q}} D_{\p+\q}`
 where $`τ` is the root of unity from {uses "tau"}[] and $`\braket{\cdot,\cdot}` is the symplectic inner product from {uses "symplectic_inner_product"}[].
@@ -120,9 +122,9 @@ lemma D_pow_d_eq_one (p : ℤ × ℤ) :
   sorry
 ```
 
-Displacement oeprators with different $`\p` (modulo $`d`) are indeed different.
+Displacement operators with different $`\p` (modulo $`d`) are indeed different.
 
-:::lemma_ "D_p_neq_D_q" (parent := "displacement_core") (effort := "medium")
+:::lemma_ "D_p_neq_D_q" (parent := "displacement_core") (effort := "medium") (owner := "Carli_Bruinsma")
 Let $`\p,\q \in ℤ^2` and assume $`α,β ∈ ℂ` are both non-zero.
 Then
 $$`α D_\p = β D_\q`
@@ -136,6 +138,17 @@ The *generalized Pauli group* or *discrete Weyl–Heisenberg group* consists of
 $$`\GP(d) = \{τ^a D_\p : a ∈ ℤ_d, \p ∈ ℤ_d^2\}`
 where $`τ` is from {uses "tau"}[] and $`D_\p` is from {uses "displacement"}[].
 :::
+
+```lean "Pauli_group"
+def pauliGroup (d : ℕ) [NeZero d] :
+    Subgroup (Matrix.unitaryGroup (ZMod d) ℂ) where
+  carrier := {U | ∃ (a : ZMod d) (p : ZMod d × ZMod d),
+    (U : Matrix (ZMod d) (ZMod d) ℂ) =
+      (τ d) ^ a.val • D d (p.1.val : ℤ) (p.2.val : ℤ)}
+  one_mem' := sorry
+  mul_mem' := sorry
+  inv_mem' := sorry
+```
 
 We could have equivalently written
 $$`\GP(d) = \{τ^a X^x Z^z : a,x,z ∈ ℤ_d\}`

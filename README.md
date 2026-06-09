@@ -7,7 +7,7 @@ This formalization is based on Sections 2 and 3 of
 > [arXiv:quant-ph/0412001](https://arxiv.org/abs/quant-ph/0412001),
 > [J. Math. Phys. **46**, 052107 (2005)](https://doi.org/10.1063/1.1896384)
 
-[Here](https://marozols.github.io/clifford-project/) is the latest HTML version of the blueprint.
+See the [HTML blueprint](https://marozols.github.io/clifford-project/) to inspect the current state of the project.
 
 ## Contributing
 

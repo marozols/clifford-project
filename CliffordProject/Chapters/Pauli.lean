@@ -44,16 +44,63 @@ def X : Matrix (ZMod d) (ZMod d) ℂ :=
   Matrix.of fun i j => if j + 1 = i then 1 else 0
 ```
 
+Powers of the Pauli $`X` matrix.
+
+:::lemma_ "X_pow_n" (parent := "Pauli_core") (owner := "Carli_Bruinsma")
+The $`n`-th power of the $`d`-dimensional Pauli $`X` matrix acts on basis vectors as
+$$`X^n \ket{k} = \ket{k + n \mod d}.`
+:::
+
+```lean "X_pow_n"
+lemma X_pow_pos_n (n : ℕ) : X d ^ n =
+    Matrix.of (fun i j => if j + (n : ZMod d) = i then 1
+    else 0) := by
+  induction n with
+  | zero =>
+    ext i j
+    have hij : i = j ↔ j = i := ⟨Eq.symm, Eq.symm⟩
+    simp [pow_zero, Matrix.one_apply, hij]
+  | succ n hind =>
+    ext i j
+    rw [pow_succ, hind, Matrix.mul_apply]
+    have hfun : ∀ (x : ZMod d), x ≠ (j + (1 : ZMod d)) →
+        X d x j = 0 := by
+      unfold X
+      intro x h
+      simp
+      by_contra h'
+      symm at h'
+      contradiction
+    have hfun'  : ∀ (x : ZMod d), x ≠ (j + (1 : ZMod d)) →
+        Matrix.of (fun i j => if j + (n : ZMod d) = i
+        then 1 else 0) i x * X d x j = 0 := by
+        intro x h
+        specialize hfun x h
+        rw [hfun, mul_zero]
+    rw [Fintype.sum_eq_single (j + 1) hfun']
+    by_cases h : j + ((n + 1) : ZMod d) = i <;>
+      simp [h];
+      rw [add_comm (n : ZMod d), ← add_assoc] at h;
+      simp [h, X]
+    intro hj
+    rw [add_assoc, add_comm 1] at hj
+    contradiction
+```
+
 The Pauli $`X` matrix has order $`d`.
 
-:::lemma_ "X_pow_d_eq_one" (parent := "Pauli_core")
+:::lemma_ "X_pow_d_eq_one" (parent := "Pauli_core")  (owner := "Gina_Muuss")
 The $`d`-th power of the $`d`-dimensional Pauli $`X` matrix is the identity matrix:
 $$`X^d = I.`
 :::
 
 ```lean "X_pow_d_eq_one"
 lemma X_pow_d_eq_one : X d ^ d = 1 := by
-  sorry
+  rw [X_pow_pos_n]
+  ext i j
+  simp only [CharP.cast_eq_zero, add_zero, Matrix.of_apply]
+  simp only [eq_comm]
+  rfl
 ```
 
 The generalized Pauli $`Z` matrix is diagonal and introduces a phase $`ω` to each standard basis vector $`\ket{k}`.
@@ -89,13 +136,29 @@ lemma Z_pow_d_eq_one : (Z d) ^ d = 1 := by
 
 Pauli $`X` and $`Z` commute up to a phase.
 
-:::lemma_ "ZX_eq_omega_mul_XZ" (parent := "Pauli_core")
+:::lemma_ "ZX_eq_omega_mul_XZ" (parent := "Pauli_core") (owner := "Gina_Muuss")
 Pauli $`X` and $`Z` matrices satisfy the following commutation relation:
 $$`Z X = ω X Z.`
 :::
 
 ```lean "ZX_eq_omega_mul_XZ"
+#check pow_mod_orderOf
 lemma ZX_eq_omega_mul_XZ :
   Z d * X d = ω d • (X d * Z d) := by
-  sorry
+  ext i j
+  rw [Matrix.mul_apply, Matrix.smul_apply, Matrix.mul_apply]
+  unfold X Z
+  simp only [Matrix.of_apply, mul_ite, mul_one,
+    mul_zero, Finset.sum_ite_eq, Finset.mem_univ,
+    ↓reduceIte, ite_mul, one_mul, zero_mul,
+    Finset.sum_ite_eq', smul_eq_mul]
+  simp only [eq_comm]
+  by_cases h : i = j + 1
+  /- Case 1: h : i = j + 1-/
+  . rw [if_pos h, if_pos h, h, ← pow_succ', ZMod.val_add,
+    (omega_pow_k_mod_d_eq_pow_k d (j.val + 1)),
+    ZMod.val_one_eq_one_mod, Nat.add_mod_mod]
+  /- Case 2: h : i ≠ j + 1-/
+  rw [if_neg h, if_neg h]
+
 ```
