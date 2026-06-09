@@ -32,7 +32,7 @@ open Informal
 :::author "Daan_Planken" (name := "Daan Planken")
 :::
 
-:::author "William_Hasley" (name := "William Hasley")
+:::author "William_Hasley" (name := "William Hasley") (url := "https://perso.eleves.ens-rennes.fr/people/william.hasley/") (image_url := "https://perso.eleves.ens-rennes.fr/people/william.hasley/resources/me.jpg")
 :::
 
 :::author "Sebastian Verschoor" (name := "Sebastian Verschoor")

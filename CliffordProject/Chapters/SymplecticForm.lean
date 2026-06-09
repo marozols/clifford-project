@@ -5,6 +5,7 @@ import VersoBlueprint
 import Mathlib.Data.ZMod.Basic
 import Mathlib.Data.Matrix.Basic
 import Mathlib.LinearAlgebra.Matrix.Determinant.Basic
+import Mathlib.LinearAlgebra.Matrix.SpecialLinearGroup
 
 import CliffordProject.LaTeXMacros
 import CliffordProject.Authors
@@ -35,7 +36,7 @@ $$`\braket{\p,\q} := p_2 q_1 - p_1 q_2.`
 
 ```lean "symplectic_inner_product"
 def symp {R : Type*} [CommRing R] (p q : R × R) : R :=
-  p.1 * q.2 - p.2 * q.1
+  p.2 * q.1 - p.1 * q.2
 ```
 
 The symplectic inner product is antisymmetric.
@@ -69,9 +70,8 @@ $`\braket{\p,\p} = p_2 p_1 - p_1 p_2 = 0.`
 :::
 
 ```lean "self_eq_zero"
-lemma self_eq_zero (p : ZMod d × ZMod d) : symp p p = 0 := by
-  unfold symp
-  ring
+lemma self_eq_zero (p : ZMod d × ZMod d) : symp p p = 0 :=
+  by unfold symp; ring
 ```
 
 The symplectic inner product is additive in the first argument.
@@ -136,7 +136,7 @@ lemma symp_smul_right
 
 If both arguments of the symplectic inner product are transformed by a linear map $`F`, the value gets multiplied by $`\det F`.
 
-:::lemma_ "symp_det" (parent := "symplectic_form") (effort := "medium")
+:::lemma_ "symp_det" (parent := "symplectic_form") (effort := "medium") (owner := "William_Hasley")
 For any matrix $`F \in \mathrm{M}_2(ℤ_d)` and vectors $`\p, \q \in ℤ_d^2`,
 $$`\langle F\p, F\q \rangle = (\det F) \langle \p, \q \rangle.`
 :::
@@ -153,10 +153,78 @@ $$`\begin{aligned}
 \end{aligned}`
 :::
 
+```lean "symp_det"
+def pair_apply_mat (F : Matrix (Fin 2) (Fin 2) (ZMod d))
+  (p : ZMod d × ZMod d) : ZMod d × ZMod d :=
+  (vecForm 0, vecForm 1) where
+  vecForm := (Matrix.vecMul (fun i :
+    Fin 2 => if i.val = 0 then p.fst else p.snd) F)
+
+lemma symp_det (F : Matrix (Fin 2) (Fin 2) (ZMod d))
+  (p q : ZMod d × ZMod d) :
+    symp (pair_apply_mat d F p) (pair_apply_mat d F q) =
+      Matrix.det F * (symp p q) :=
+    by calc
+      symp (pair_apply_mat d F p) (pair_apply_mat d F q) =
+      symp ((F 0 0) * p.1 + (F 1 0) * p.2,
+         (F 0 1) * p.1 + (F 1 1) * p.2)
+         ((F 0 0) * q.1 + (F 1 0) * q.2,
+         (F 0 1) * q.1 + (F 1 1) * q.2)
+         := by unfold pair_apply_mat; unfold pair_apply_mat.vecForm; unfold Matrix.vecMul; simp; ring
+      _ = (((F 0 1) * p.1 + (F 1 1) * p.2) *
+        ((F 0 0) * q.1 + (F 1 0) * q.2)) -
+        (((F 0 1) * q.1 + (F 1 1) * q.2) *
+        ((F 0 0) * p.1 + (F 1 0) * p.2))
+        := by unfold symp; simp; ring
+      _ = ((F 0 0) * (F 1 1) - (F 1 0) * (F 0 1)) *
+        (p.2 * q.1 - p.1 * q.2 )
+        := by ring
+      _ = (Matrix.det F) * (symp p q)
+        := by symm; unfold symp; rw [Matrix.det_fin_two]; ring
+```
+
 Adjoint property of the symplectic inner product.
 
-:::lemma_ "symp_adjoint" (parent := "symplectic_form") (effort := "medium")
+:::lemma_ "symp_adjoint" (parent := "symplectic_form") (effort := "medium") (owner := "William_Hasley")
 If $`F ∈ \SL(2,ℤ_d)` then
 $$`\braket{\p,F\q} \equiv \braket{F^{-1}\p,\q} \pmod{d}`
 for all $`\p,\q ∈ ℤ`.
 :::
+
+:::proof "symp_adjoint"
+Since $`F` is invertible, one can write $`p = FF^{-1}p`. Hence,
+$$`\begin{align*}
+  \langle p, F q \rangle &= \langle FF^{-1}p , F q \rangle\
+  &= (\det F) \langle F^{-1}p, q \rangle\\
+  &=\langle F^{-1}p, q \rangle
+  \end{align*}
+`
+:::
+
+```lean "symp_adjoint"
+def SpecialLinearInverse
+  (F : Matrix.SpecialLinearGroup (Fin 2) (ZMod d))
+  : Matrix.SpecialLinearGroup (Fin 2) (ZMod d) :=
+    Matrix.SpecialLinearGroup.hasInv.inv F
+
+lemma MatrixMulToDoubleApply :
+  (F G : Matrix (Fin 2) (Fin 2) (ZMod d)) (p : ZMod d × ZMod d) :
+    pair_apply_mat d (F * G) p = pair_apply_mat d F (pair_apply_mat d G p)
+  := by sorry
+
+lemma symp_adjoint
+  (F : Matrix.SpecialLinearGroup (Fin 2) (ZMod d))
+  (p q : ZMod d × ZMod d) :
+  (symp p (pair_apply_mat d F q)) =
+    (symp (pair_apply_mat d (SpecialLinearInverse d F) p) q)
+  := by calc
+  symp p (pair_apply_mat d F q) =
+  symp
+    (pair_apply_mat d (F * (SpecialLinearInverse d F)) p)
+    (pair_apply_mat d F q)
+    := by symm; unfold SpecialLinearInverse; sorry --rw [mul_inv_cancel (↑F)];
+  _ = (Matrix.det
+        (Matrix.SpecialLinearGroup.instCoeFun.coe F)) *
+    symp (pair_apply_mat d (SpecialLinearInverse d F) p) q
+    := by sorry -- rw [symp_det]
+```
