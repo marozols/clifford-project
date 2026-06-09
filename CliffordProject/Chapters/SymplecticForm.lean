@@ -119,15 +119,17 @@ lemma symp_smul_left
 
 Constants can be pulled out of the second argument.
 
-:::lemma_ "symp_smul_right" (parent := "symplectic_form") (effort := "small")
+:::lemma_ "symp_smul_right" (parent := "symplectic_form") (effort := "small")  (owner := "William_Hasley")
 For all $`c ∈ ℤ_d` and $`\p, \q ∈ ℤ_d^2`,
 $$`\braket{\p, c\q} = c\braket{\p,\q}.`
 :::
 
 ```lean "symp_smul_right"
+omit [NeZero d] in
 lemma symp_smul_right
     (c : ZMod d) (p q : ZMod d × ZMod d) :
-    symp d p (c • q) = c * symp d p q := sorry
+    symp d p (c • q) = c * symp d p q :=
+     by unfold symp; simp; ring
 ```
 
 If both arguments of the symplectic inner product are transformed by a linear map $`F`, the value gets multiplied by $`\det F`.
