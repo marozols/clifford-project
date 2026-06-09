@@ -98,6 +98,18 @@ If $`d` is odd, adding a multiple of $`d` to the index of a displacement operato
 If $`d` is odd then $`D_{\p+d\q} = D_{\p}` for all $`\p, \q ∈ ℤ^2`.
 :::
 
+```lean "D_add_nsmul"
+lemma D_add_nsmul (p q : ℤ × ℤ) (hodd : Odd d) :
+    D d (p.1 + d * q.1) (p.2 + d * q.2)
+    = D d p.1 p.2 := by
+  -- update this with version of D_mul later
+  have h : D d p.1 p.2 * D d q.1 q.2 =
+      τ d ^ (symp p q) • D d (p.1 + q.1) (p.2 + q.2) := by sorry
+  sorry
+
+
+```
+
 If $`d` is odd, the index $`\p` of a displacement operator $`D_\p` can be treated modulo $`d`.
 In other words, it makes sense to write $`\p \in ℤ_d^2`.
 
