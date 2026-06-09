@@ -90,16 +90,18 @@ lemma symp_add_left
 
 The symplectic inner product is additive in the second argument.
 
-:::lemma_ "symp_add_right" (parent := "symplectic_form") (effort := "small")
+:::lemma_ "symp_add_right" (parent := "symplectic_form") (effort := "small") (owner := "William_Hasley")
 For all $`\p, \q, \q' ∈ ℤ_d^2`,
 $$`\braket{\p, \q + \q'} = \braket{\p,\q} + \braket{\p,\q'}.`
 :::
 
 ```lean "symp_add_right"
+omit [NeZero d] in
 lemma symp_add_right
     (p q q' : ZMod d × ZMod d) :
     symp d p (q + q') =
-    symp d p q + symp d p q' := sorry
+    symp d p q + symp d p q' :=
+      by unfold symp; simp; ring
 ```
 
 Constants can be pulled out of the first argument.
