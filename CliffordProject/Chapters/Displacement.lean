@@ -2,6 +2,7 @@ import Verso
 import VersoManual
 import VersoBlueprint
 
+import Mathlib.Algebra.EuclideanDomain.Int
 import Mathlib.Data.Matrix.Basic
 import Mathlib.Data.ZMod.Basic
 import Mathlib.Data.Complex.Basic
@@ -111,7 +112,7 @@ If $`d` is odd, the index $`\p` of a displacement operator $`D_\p` can be treate
 In other words, it makes sense to write $`\p \in ℤ_d^2`.
 
 :::lemma_ "D_mod_d" (parent := "displacement_core") (effort := "small") (owner := "William_Hasley")
-For all $`\p \in ℤ^2`,
+If $`d` is odd, then for all $`\p \in ℤ^2`,
 $$`D_\p = D_{\p \pmod d}.`
 :::
 
@@ -120,16 +121,29 @@ This is a direct consequence of {uses "D_add_nsmul"}[]
 :::
 
 ```lean "D_mod_d"
-lemma D_mod_d (p : ℤ × ℤ) :
+@[default_instance]
+instance : EuclideanDomain ℤ := Int.euclideanDomain
+
+lemma D_mod_d (p : ℤ × ℤ) (hodd : Odd d):
     D d p.1 p.2 = D d (p.1 % d) (p.2 % d) :=
-    by unfold D; sorry
+    by calc
+      D d p.1 p.2 =
+      D d (p.1 % d + d * (p.1 / d))
+        (p.2 % d + d * (p.2 / d))
+
+      := by rw[EuclideanDomain.mod_add_div p.1];
+            rw[EuclideanDomain.mod_add_div p.2]
+    _ = D d (p.1 % d) (p.2 % d)
+      := D_add_nsmul d (p.1 % d, p.2 % d)
+          (p.1 / d, p.2 / d) hodd
+
 ```
 
 
 The displacement operators have order $`d`.
 
 :::lemma_ "D_pow_d_eq_one" (parent := "displacement_core") (effort := "small") (owner := "William_Hasley")
-For all $`\p \in ℤ^2`,
+If $`d` is odd, then for all $`\p \in ℤ^2`,
 $$`D_\p^d = I.`
 :::
 
@@ -140,7 +154,15 @@ By {uses "D_pow_nsmul"}[], $`D_\p^d = D_{d\p} = D_\mathbf{0} = I`, using $`d\p =
 ```lean "D_pow_d_eq_one"
 lemma D_pow_d_eq_one (p : ℤ × ℤ) :
     D d p.1 p.2 ^ d = 1 :=
-    by rw [D_pow_nsmul]; sorry
+    by rw [D_pow_nsmul]; calc
+    D d (d • p).1 (d • p).2 =
+       D d ((d • p).1 % d) ((d • p).2 % d)
+    := D_mod_d d (d • p)
+    _ = D d 0 ((d • p).2 % d)
+    := by simp
+    _ = D d 0 0
+    := by simp
+    _ = 1 := by unfold D; simp
 ```
 
 Displacement operators with different $`\p` (modulo $`d`) are indeed different.
@@ -178,7 +200,7 @@ lemma D_p_neq_D_q
 
 Displacement operators with phases that are arbitrary powers of $`τ` form a group.
 
-:::definition "Pauli_group" (parent := "displacement_core")
+:::definition "Pauli_group" (parent := "displacement_core") (owner := "William_Hasley")
 The *generalized Pauli group* or *discrete Weyl–Heisenberg group* consists of
 $$`\GP(d) = \{τ^a D_\p : a ∈ ℤ_d, \p ∈ ℤ_d^2\}`
 where $`τ` is from {uses "tau"}[] and $`D_\p` is from {uses "displacement"}[].
