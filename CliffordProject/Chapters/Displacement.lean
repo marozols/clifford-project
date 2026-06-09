@@ -100,10 +100,21 @@ If $`d` is odd then $`D_{\p+d\q} = D_{\p}` for all $`\p, \q ∈ ℤ^2`.
 If $`d` is odd, the index $`\p` of a displacement operator $`D_\p` can be treated modulo $`d`.
 In other words, it makes sense to write $`\p \in ℤ_d^2`.
 
-:::lemma_ "D_mod_d" (parent := "displacement_core") (effort := "small")
+:::lemma_ "D_mod_d" (parent := "displacement_core") (effort := "small") (owner := "William_Hasley")
 For all $`\p \in ℤ^2`,
 $$`D_\p = D_{\p \pmod d}.`
 :::
+
+:::proof "D_mod_d"
+This is a direct consequence of {uses "D_add_nsmul"}[]
+:::
+
+```lean "D_mod_d"
+lemma D_mod_d (p : ℤ × ℤ) :
+    D d p.1 p.2 = D d (p.1 % d) (p.2 % d) :=
+    by unfold D; sorry
+```
+
 
 The displacement operators have order $`d`.
 
