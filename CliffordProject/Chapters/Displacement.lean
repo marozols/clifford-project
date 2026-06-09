@@ -51,7 +51,7 @@ noncomputable def D
 
 Displacement operators behave nicely under complex conjugation, see Eq. (9) in {citet Appleby}[].
 
-:::lemma_ "D_conj" (parent := "displacement_core") (effort := "small")
+:::lemma_ "D_conj" (parent := "displacement_core") (effort := "small")  (owner := "Gina_Muuss")
 For all $`x,z ∈ ℤ`,
 $$`D_{x,z}^† = D_{-x,-z}`
 where $`\dagger` denotes the conjugate transpose.
