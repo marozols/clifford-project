@@ -65,7 +65,7 @@ lemma conjTranspose_D (x z : ℤ) :
 
 Multiplication of displacement operators corresponds to adding their subscripts and introducing a phase given by the symplectic inner product, see Eq. (10) in {citet Appleby}[].
 
-:::lemma_ "D_mul" (parent := "displacement_core") (effort := "small")
+:::lemma_ "D_mul" (parent := "displacement_core") (effort := "small") (owner := "Daan_Planken")
 For all $`\p, \q ∈ ℤ^2`,
 $$`D_\p D_\q = τ^{\braket{\p,\q}} D_{\p+\q}`
 where $`τ` is the root of unity from {uses "tau"}[] and $`\braket{\cdot,\cdot}` is the symplectic inner product from {uses "symplectic_inner_product"}[].

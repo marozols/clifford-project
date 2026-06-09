@@ -76,7 +76,7 @@ lemma self_eq_zero (p : ZMod d × ZMod d) : symp d p p = 0 := by
 
 The symplectic inner product is additive in the first argument.
 
-:::lemma_ "symp_add_left" (parent := "symplectic_form") (effort := "small")
+:::lemma_ "symp_add_left" (parent := "symplectic_form") (effort := "small") (owner := "Daan_Planken")
 For all $`\p, \p', \q ∈ ℤ_d^2`,
 $$`\braket{\p + \p', \q} = \braket{\p,\q} + \braket{\p',\q}.`
 :::
