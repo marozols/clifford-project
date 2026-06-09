@@ -34,8 +34,8 @@ $$`\braket{\p,\q} := p_2 q_1 - p_1 q_2.`
 :::
 
 ```lean "symplectic_inner_product"
-def symp (p q : ZMod d × ZMod d) : ZMod d :=
-  p.2 * q.1 - p.1 * q.2
+def symp {R : Type*} [CommRing R] (p q : R × R) : R :=
+  p.1 * q.2 - p.2 * q.1
 ```
 
 The symplectic inner product is antisymmetric.
@@ -52,7 +52,7 @@ $`\braket{\p,\q} = p_2 q_1 - p_1 q_2 = - (q_2 p_1 - q_1 p_2) = -\braket{\q,\p}.`
 ```lean "symp_antisymmetric"
 omit [NeZero d] in
 lemma symp_antisymmetric (p q : ZMod d × ZMod d) :
-    symp d p q = - symp d q p := by
+    symp p q = - symp q p := by
   unfold symp
   ring
 ```
@@ -69,7 +69,7 @@ $`\braket{\p,\p} = p_2 p_1 - p_1 p_2 = 0.`
 :::
 
 ```lean "self_eq_zero"
-lemma self_eq_zero (p : ZMod d × ZMod d) : symp d p p = 0 := by
+lemma self_eq_zero (p : ZMod d × ZMod d) : symp p p = 0 := by
   unfold symp
   ring
 ```
@@ -84,8 +84,8 @@ $$`\braket{\p + \p', \q} = \braket{\p,\q} + \braket{\p',\q}.`
 ```lean "symp_add_left"
 lemma symp_add_left
     (p p' q : ZMod d × ZMod d) :
-    symp d (p + p') q =
-    symp d p q + symp d p' q := sorry
+    symp (p + p') q =
+    symp p q + symp p' q := sorry
 ```
 
 The symplectic inner product is additive in the second argument.
@@ -98,8 +98,8 @@ $$`\braket{\p, \q + \q'} = \braket{\p,\q} + \braket{\p,\q'}.`
 ```lean "symp_add_right"
 lemma symp_add_right
     (p q q' : ZMod d × ZMod d) :
-    symp d p (q + q') =
-    symp d p q + symp d p q' := sorry
+    symp p (q + q') =
+    symp p q + symp p q' := sorry
 ```
 
 Constants can be pulled out of the first argument.
@@ -113,7 +113,7 @@ $$`\braket{c\p, \q} = c\braket{\p,\q}.`
 omit [NeZero d] in
 lemma symp_smul_left
     (c : ZMod d) (p q : ZMod d × ZMod d) :
-    symp d (c • p) q = c * symp d p q :=
+    symp (c • p) q = c * symp p q :=
       by unfold symp; simp; ring
 ```
 
@@ -128,7 +128,7 @@ $$`\braket{\p, c\q} = c\braket{\p,\q}.`
 omit [NeZero d] in
 lemma symp_smul_right
     (c : ZMod d) (p q : ZMod d × ZMod d) :
-    symp d p (c • q) = c * symp d p q :=
+    symp p (c • q) = c * symp p q :=
      by unfold symp; simp; ring
 ```
 
