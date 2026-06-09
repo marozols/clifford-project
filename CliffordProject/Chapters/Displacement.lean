@@ -102,9 +102,7 @@ lemma D_add_nsmul (p q : ℤ × ℤ) (hodd : Odd d) :
     D d (p.1 + d * q.1) (p.2 + d * q.2)
     = D d p.1 p.2 := by
   -- update this with version of D_mul later
-  have h : D d p.1 p.2 * D d q.1 q.2 =
-      τ d ^ (symp p q) • D d (p.1 + q.1) (p.2 + q.2) := by sorry
-  sorry
+
 
 
 ```

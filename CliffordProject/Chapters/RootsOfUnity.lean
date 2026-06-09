@@ -117,7 +117,8 @@ $`τ^d = (-\exp(πi/d))^d = (-1)^d · (\exp(πi/d))^d = (-1)^d · \exp(πi) = (-
 :::
 
 ```lean "tau_pow_d_eq_one_of_odd"
-lemma tau_pow_d_eq_one (hodd : Odd d) : (τ d)^d = 1 := by
+lemma tau_pow_d_eq_one_of_odd (hodd : Odd d) :
+    (τ d)^d = 1 := by
   calc
     (-Complex.exp (↑Real.pi * Complex.I * (↑d)⁻¹)) ^ d
         = (-1 : ℂ)^d *
@@ -172,4 +173,17 @@ lemma tau_pow_d2_one : (τ d) ^ (d ^ 2) = 1 := by
   exact Nat.even_mul_succ_self d
   · norm_num
   · exact d_invertible d
+```
+
+:::lemma_ "tau_neq_zero" (parent := "roots_of_unity") (effort := "small") (owner := "Carli_Bruinsma")
+$`τ ≠ 0`.
+:::
+
+```lean "tau_neq_zero"
+omit [NeZero d] in
+lemma tau_neq_zero : τ d ≠ 0 := by
+  unfold τ
+  apply neg_ne_zero.mp
+  rw [neg_neg]
+  exact Complex.exp_ne_zero (↑Real.pi * Complex.I / ↑d)
 ```
