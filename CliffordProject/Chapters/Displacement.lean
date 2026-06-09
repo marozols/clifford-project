@@ -2,6 +2,7 @@ import Verso
 import VersoManual
 import VersoBlueprint
 
+import Mathlib.Algebra.EuclideanDomain.Int
 import Mathlib.Data.Matrix.Basic
 import Mathlib.Data.ZMod.Basic
 import Mathlib.Data.Complex.Basic
@@ -110,9 +111,27 @@ This is a direct consequence of {uses "D_add_nsmul"}[]
 :::
 
 ```lean "D_mod_d"
+
+@[default_instance]
+instance : EuclideanDomain ℤ := Int.euclideanDomain
+
+
 lemma D_mod_d (p : ℤ × ℤ) :
     D d p.1 p.2 = D d (p.1 % d) (p.2 % d) :=
-    by unfold D; sorry
+    by sorry
+  --    D d p.1 p.2 =
+  --    D d (d * (p.1 / d) + p.1 % d)
+  --      (d * (p.2 / d) + p.2 % d)
+  --
+  --    := by rw[EuclideanDomain.div_add_mod p.1];
+  --          rw[EuclideanDomain.div_add_mod p.2]
+  --  _ = ((τ d) ^ (symp d (d * (p.1 / d), d * (p.2 / d))
+  --        (p.1 % d, p.2 % d)))
+  --        * (D d (d * (p.1 / d)) (d * (p.2 / d)))
+  --        * (D d (p.1 % d) (p.2 % d))
+  --    := by sorry
+
+      --tau_pow_d_eq_one
 ```
 
 
@@ -130,7 +149,15 @@ By {uses "D_pow_nsmul"}[], $`D_\p^d = D_{d\p} = D_\mathbf{0} = I`, using $`d\p =
 ```lean "D_pow_d_eq_one"
 lemma D_pow_d_eq_one (p : ℤ × ℤ) :
     D d p.1 p.2 ^ d = 1 :=
-    by rw [D_pow_nsmul]; sorry
+    by rw [D_pow_nsmul]; calc
+    D d (d • p).1 (d • p).2 =
+       D d ((d • p).1 % d) ((d • p).2 % d)
+    := D_mod_d d (d • p)
+    _ = D d 0 ((d • p).2 % d)
+    := by simp
+    _ = D d 0 0
+    := by simp
+    _ = 1 := by unfold D; simp
 ```
 
 Displacement operators with different $`\p` (modulo $`d`) are indeed different.
