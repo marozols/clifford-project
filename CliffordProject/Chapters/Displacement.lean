@@ -131,6 +131,30 @@ $$`α D_\p = β D_\q`
 if and only if $`\p \equiv \q \pmod{d}`.
 :::
 
+```lean "D_p_neq_D_q"
+lemma D_p_neq_D_q
+    (p q : ℤ × ℤ)
+    (α β : ℂ) [NeZero α] [NeZero β] :
+    α • (D d p.1 p.2) = β • (D d q.1 q.2) ↔
+    (p.1 ≡ q.1 [ZMOD (d : ℤ)] ∧
+    p.2 ≡ q.2 [ZMOD (d : ℤ)]) := by
+  -- Probably not the correct statement yet!
+  constructor
+  · intro h
+    have h' : (β⁻¹ * α) • D d p.1 p.2 = D d q.1 q.2 := by
+      calc (β⁻¹ * α) • D d p.1 p.2 =
+        β⁻¹ • (α • D d p.1 p.2) := by
+            rw [mul_smul, ← smul_assoc]
+        _ = β⁻¹ • (β • D d q.1 q.2) := by
+            rw [h]
+        _ = D d q.1 q.2 := by
+            rw [inv_smul_smul₀ (NeZero.ne β)]
+    sorry
+  · sorry
+#check mul_smul
+
+```
+
 Displacement operators with phases that are arbitrary powers of $`τ` form a group.
 
 :::definition "Pauli_group" (parent := "displacement_core")
