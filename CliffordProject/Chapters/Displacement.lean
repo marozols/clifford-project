@@ -114,7 +114,7 @@ If $`d` is odd, the index $`\p` of a displacement operator $`D_\p` can be treate
 In other words, it makes sense to write $`\p \in ℤ_d^2`.
 
 :::lemma_ "D_mod_d" (parent := "displacement_core") (effort := "small") (owner := "William_Hasley")
-For all $`\p \in ℤ^2`,
+If $`d` is odd, then for all $`\p \in ℤ^2`,
 $$`D_\p = D_{\p \pmod d}.`
 :::
 
@@ -123,34 +123,29 @@ This is a direct consequence of {uses "D_add_nsmul"}[]
 :::
 
 ```lean "D_mod_d"
-
 @[default_instance]
 instance : EuclideanDomain ℤ := Int.euclideanDomain
 
-
-lemma D_mod_d (p : ℤ × ℤ) :
+lemma D_mod_d (p : ℤ × ℤ) (hodd : Odd d):
     D d p.1 p.2 = D d (p.1 % d) (p.2 % d) :=
-    by sorry
-  --    D d p.1 p.2 =
-  --    D d (d * (p.1 / d) + p.1 % d)
-  --      (d * (p.2 / d) + p.2 % d)
-  --
-  --    := by rw[EuclideanDomain.div_add_mod p.1];
-  --          rw[EuclideanDomain.div_add_mod p.2]
-  --  _ = ((τ d) ^ (symp d (d * (p.1 / d), d * (p.2 / d))
-  --        (p.1 % d, p.2 % d)))
-  --        * (D d (d * (p.1 / d)) (d * (p.2 / d)))
-  --        * (D d (p.1 % d) (p.2 % d))
-  --    := by sorry
+    by calc
+      D d p.1 p.2 =
+      D d (p.1 % d + d * (p.1 / d))
+        (p.2 % d + d * (p.2 / d))
 
-      --tau_pow_d_eq_one
+      := by rw[EuclideanDomain.mod_add_div p.1];
+            rw[EuclideanDomain.mod_add_div p.2]
+    _ = D d (p.1 % d) (p.2 % d)
+      := D_add_nsmul d (p.1 % d, p.2 % d)
+          (p.1 / d, p.2 / d) hodd
+
 ```
 
 
 The displacement operators have order $`d`.
 
 :::lemma_ "D_pow_d_eq_one" (parent := "displacement_core") (effort := "small") (owner := "William_Hasley")
-For all $`\p \in ℤ^2`,
+If $`d` is odd, then for all $`\p \in ℤ^2`,
 $$`D_\p^d = I.`
 :::
 
