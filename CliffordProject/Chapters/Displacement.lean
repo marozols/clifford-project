@@ -107,7 +107,7 @@ $$`D_\p = D_{\p \pmod d}.`
 
 The displacement operators have order $`d`.
 
-:::lemma_ "D_pow_d_eq_one" (parent := "displacement_core") (effort := "small")
+:::lemma_ "D_pow_d_eq_one" (parent := "displacement_core") (effort := "small") (owner := "William_Hasley")
 For all $`\p \in ℤ^2`,
 $$`D_\p^d = I.`
 :::
@@ -119,7 +119,7 @@ By {uses "D_pow_nsmul"}[], $`D_\p^d = D_{d\p} = D_\mathbf{0} = I`, using $`d\p =
 ```lean "D_pow_d_eq_one"
 lemma D_pow_d_eq_one (p : ℤ × ℤ) :
     D d p.1 p.2 ^ d = 1 :=
-  sorry
+    by rw [D_pow_nsmul]; sorry
 ```
 
 Displacement operators with different $`\p` (modulo $`d`) are indeed different.
