@@ -124,7 +124,7 @@ lemma D_pow_d_eq_one (p : ℤ × ℤ) :
 
 Displacement operators with different $`\p` (modulo $`d`) are indeed different.
 
-:::lemma_ "D_p_neq_D_q" (parent := "displacement_core") (effort := "medium")
+:::lemma_ "D_p_neq_D_q" (parent := "displacement_core") (effort := "medium") (owner := "Carli_Bruinsma")
 Let $`\p,\q \in ℤ^2` and assume $`α,β ∈ ℂ` are both non-zero.
 Then
 $$`α D_\p = β D_\q`
