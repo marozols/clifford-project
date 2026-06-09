@@ -93,7 +93,7 @@ lemma D_pow_nsmul (p : ℤ × ℤ) (n : ℕ) :
 
 If $`d` is odd, adding a multiple of $`d` to the index of a displacement operator does not change it, see Eq. (11) in {citet Appleby}[].
 
-:::lemma_ "D_add_nsmul"
+:::lemma_ "D_add_nsmul" (owner := "Carli_Bruinsma")
 If $`d` is odd then $`D_{\p+d\q} = D_{\p}` for all $`\p, \q ∈ ℤ^2`.
 :::
 
