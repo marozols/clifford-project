@@ -160,6 +160,13 @@ def pair_apply_mat (F : Matrix (Fin 2) (Fin 2) (ZMod d))
   vecForm := (Matrix.vecMul (fun i :
     Fin 2 => if i.val = 0 then p.fst else p.snd) F)
 
+lemma pair_apply_mat_alg
+  (F : Matrix (Fin 2) (Fin 2) (ZMod d))
+  (p : ZMod d × ZMod d) :
+  pair_apply_mat d F p = ((F 0 0) * p.1 + (F 1 0) * p.2,
+                          (F 0 1) * p.1 + (F 1 1) * p.2)
+  := by unfold pair_apply_mat; unfold pair_apply_mat.vecForm; unfold Matrix.vecMul; simp; apply And.intro; ring; ring
+
 lemma symp_det (F : Matrix (Fin 2) (Fin 2) (ZMod d))
   (p q : ZMod d × ZMod d) :
     symp (pair_apply_mat d F p) (pair_apply_mat d F q) =
@@ -207,10 +214,26 @@ def SpecialLinearInverse
   : Matrix.SpecialLinearGroup (Fin 2) (ZMod d) :=
     Matrix.SpecialLinearGroup.hasInv.inv F
 
-lemma MatrixMulToDoubleApply :
-  (F G : Matrix (Fin 2) (Fin 2) (ZMod d)) (p : ZMod d × ZMod d) :
-    pair_apply_mat d (F * G) p = pair_apply_mat d F (pair_apply_mat d G p)
-  := by sorry
+lemma MatrixMulToDoubleApply
+  (F G : Matrix (Fin 2) (Fin 2) (ZMod d))
+  (p : ZMod d × ZMod d) :
+    pair_apply_mat d F (pair_apply_mat d G p)
+    = pair_apply_mat d (F * G) p
+  := by rw[pair_apply_mat_alg]; rw[pair_apply_mat_alg]; rw[pair_apply_mat_alg]; simp; apply And.intro; sorry; sorry
+    -- Find a way to unfold matrix product
+
+lemma SpecialLinearDet
+  (F : Matrix.SpecialLinearGroup (Fin 2) (ZMod d)):
+  Matrix.det (CoeFun.coe F) = 1
+  := by apply F.prop
+
+lemma FactorByInverse
+  (F : Matrix.SpecialLinearGroup (Fin 2) (ZMod d))
+  (p : ZMod d × ZMod d) :
+  pair_apply_mat d ↑((F * F⁻¹) :
+    Matrix.SpecialLinearGroup (Fin 2) (ZMod d)) p = p :=
+  by rw[mul_inv_cancel F]; simp; unfold pair_apply_mat;
+     unfold pair_apply_mat.vecForm; simp
 
 lemma symp_adjoint
   (F : Matrix.SpecialLinearGroup (Fin 2) (ZMod d))
@@ -220,11 +243,14 @@ lemma symp_adjoint
   := by calc
   symp p (pair_apply_mat d F q) =
   symp
-    (pair_apply_mat d (F * (SpecialLinearInverse d F)) p)
+    (pair_apply_mat d ((F * (SpecialLinearInverse d F))
+      : Matrix.SpecialLinearGroup (Fin 2) (ZMod d)) p)
     (pair_apply_mat d F q)
-    := by symm; unfold SpecialLinearInverse; sorry --rw [mul_inv_cancel (↑F)];
+    := by symm; unfold SpecialLinearInverse; rw [FactorByInverse]
   _ = (Matrix.det
         (Matrix.SpecialLinearGroup.instCoeFun.coe F)) *
     symp (pair_apply_mat d (SpecialLinearInverse d F) p) q
-    := by sorry -- rw [symp_det]
+    := by rw[Matrix.SpecialLinearGroup.coe_mul]; rw[<- MatrixMulToDoubleApply]; apply symp_det
+  _ = symp (pair_apply_mat d (SpecialLinearInverse d F) p) q
+    := by rw[SpecialLinearDet]; simp
 ```
