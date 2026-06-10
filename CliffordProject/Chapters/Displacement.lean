@@ -72,6 +72,18 @@ $$`D_\p D_\q = τ^{\braket{\p,\q}} D_{\p+\q}`
 where $`τ` is the root of unity from {uses "tau"}[] and $`\braket{\cdot,\cdot}` is the symplectic inner product from {uses "symplectic_inner_product"}[].
 :::
 
+```lean "D_mul"
+-- Carli added this definition, I needed it in the proof of D_add_nsmul
+-- Feel free to change it if necessary!
+-- If you change it, you can also update my proof
+lemma D_mul (p q : ℤ × ℤ) :
+    (D d p.1 p.2) * (D d q.1 q.2) =
+    τ d ^ symp p q •
+    D d (p.1 + q.1) (p.2 + q.2) := by
+  sorry
+
+
+```
 The $`n`-th power of a displacement operator is again a displacement operator.
 
 :::lemma_ "D_pow_nsmul" (parent := "displacement_core") (owner := "Joppe_Stokvis")
@@ -88,7 +100,7 @@ The result follows since $`\langle n\p,\p\rangle = n \langle\p,\p\rangle = 0` th
 
 ```lean "D_pow_nsmul"
 lemma D_pow_nsmul (p : ℤ × ℤ) (n : ℕ) :
-    D d p.1 p.2 ^ n = D d (n • p).1 (n • p).2 :=
+    D d p.1 p.2 ^ n = D d (n * p).1 (n * p).2 :=
   sorry
 ```
 
@@ -101,11 +113,35 @@ If $`d` is odd then $`D_{\p+d\q} = D_{\p}` for all $`\p, \q ∈ ℤ^2`.
 ```lean "D_add_nsmul"
 lemma D_add_nsmul (p q : ℤ × ℤ) (hodd : Odd d) :
     D d (p.1 + d * q.1) (p.2 + d * q.2)
-    = D d p.1 p.2 := by
-  -- update this with version of D_mul later
-
-
-
+    = D d p.1 p.2 :=
+  have h : (D d (d * q).1 (d * q).2) = 1 := by
+    unfold D
+    norm_num
+    rw [mul_assoc, zpow_mul, zpow_natCast,
+    tau_pow_d_eq_one_of_odd d hodd, one_zpow, one_smul]
+  calc D d (p.1 + d * q.1) (p.2 + d * q.2) =
+    (1 : ℂ) • D d (p.1 + d * q.1) (p.2 + d * q.2) := by
+        norm_num
+    _ = ((1 : ℂ) ^ (p.1 * q.2 - p.2 * q.1))
+      • D d (p.1 + d * q.1) (p.2 + d * q.2) := by
+        rw [one_zpow]
+    _ = ((τ d ^ (d : ℤ)) ^ (p.1 * q.2 - p.2 * q.1))
+      • D d (p.1 + d * q.1) (p.2 + d * q.2) := by
+        rw [zpow_natCast, tau_pow_d_eq_one_of_odd d hodd]
+    _ = (τ d ^ (p.1 * (d * q.2) - p.2 * (d * q.1)))
+      • D d (p.1 + d * q.1) (p.2 + d * q.2) := by
+        rw [← zpow_mul, mul_sub, ← mul_assoc,
+        mul_comm ↑d p.1, mul_assoc p.1,
+        mul_comm ↑d (p.2 * q.1), mul_assoc p.2,
+        mul_comm q.1]
+    _ = (τ d ^ symp p ⟨d * q.1, d * q.2⟩)
+      • D d (p.1 + d * q.1) (p.2 + d * q.2) := by
+        simp [symp]
+    _ = (D d p.1 p.2) * (D d (d * q).1 (d * q).2) := by
+        simp
+        rw [D_mul d p ⟨d * q.1, d * q.2⟩]
+    _ = D d p.1 p.2 := by
+        rw [h, mul_one]
 ```
 
 If $`d` is odd, the index $`\p` of a displacement operator $`D_\p` can be treated modulo $`d`.
