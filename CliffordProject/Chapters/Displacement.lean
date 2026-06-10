@@ -100,8 +100,17 @@ The result follows since $`\langle n\p,\p\rangle = n \langle\p,\p\rangle = 0` th
 
 ```lean "D_pow_nsmul"
 lemma D_pow_nsmul (p : ℤ × ℤ) (n : ℕ) :
-    D d p.1 p.2 ^ n = D d (n * p).1 (n * p).2 :=
-  sorry
+    D d p.1 p.2 ^ n = D d (n • p).1 (n • p).2 := by
+  induction n with
+  | zero =>
+    rw [pow_zero, zero_smul]
+    unfold D
+    simp
+  | succ n ih =>
+    rw [pow_succ, ih]
+    sorry
+    -- rw [D_mul]
+    -- simp [symp_smul_left, self_eq_zero]
 ```
 
 If $`d` is odd, adding a multiple of $`d` to the index of a displacement operator does not change it, see Eq. (11) in {citet Appleby}[].
@@ -188,12 +197,12 @@ By {uses "D_pow_nsmul"}[], $`D_\p^d = D_{d\p} = D_\mathbf{0} = I`, using $`d\p =
 :::
 
 ```lean "D_pow_d_eq_one"
-lemma D_pow_d_eq_one (p : ℤ × ℤ) :
+lemma D_pow_d_eq_one (p : ℤ × ℤ) (hOdd : Odd d) :
     D d p.1 p.2 ^ d = 1 :=
     by rw [D_pow_nsmul]; calc
     D d (d • p).1 (d • p).2 =
        D d ((d • p).1 % d) ((d • p).2 % d)
-    := D_mod_d d (d • p)
+    := D_mod_d d (d • p) hOdd
     _ = D d 0 ((d • p).2 % d)
     := by simp
     _ = D d 0 0
@@ -248,9 +257,12 @@ def pauliGroup (d : ℕ) [NeZero d] :
   carrier := {U | ∃ (a : ZMod d) (p : ZMod d × ZMod d),
     (U : Matrix (ZMod d) (ZMod d) ℂ) =
       (τ d) ^ a.val • D d (p.1.val : ℤ) (p.2.val : ℤ)}
-  one_mem' := sorry
-  mul_mem' := sorry
+
+  one_mem' := by use 0; use (0,0); simp; unfold D; simp
+  mul_mem' := @fun A B A' B' => sorry -- Need 5.30
   inv_mem' := sorry
+
+
 ```
 
 We could have equivalently written
