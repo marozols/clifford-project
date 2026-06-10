@@ -131,18 +131,18 @@ lemma D_add_nsmul (p q : ℤ × ℤ) (hodd : Odd d) :
   calc D d (p.1 + d * q.1) (p.2 + d * q.2) =
     (1 : ℂ) • D d (p.1 + d * q.1) (p.2 + d * q.2) := by
         norm_num
-    _ = ((1 : ℂ) ^ (p.1 * q.2 - p.2 * q.1))
+    _ = ((1 : ℂ) ^ (p.2 * q.1 - p.1 * q.2))
       • D d (p.1 + d * q.1) (p.2 + d * q.2) := by
         rw [one_zpow]
-    _ = ((τ d ^ (d : ℤ)) ^ (p.1 * q.2 - p.2 * q.1))
+    _ = ((τ d ^ (d : ℤ)) ^ (p.2 * q.1 - p.1 * q.2))
       • D d (p.1 + d * q.1) (p.2 + d * q.2) := by
         rw [zpow_natCast, tau_pow_d_eq_one_of_odd d hodd]
-    _ = (τ d ^ (p.1 * (d * q.2) - p.2 * (d * q.1)))
+    _ = (τ d ^ (p.2 * (d * q.1) - p.1 * (d * q.2)))
       • D d (p.1 + d * q.1) (p.2 + d * q.2) := by
         rw [← zpow_mul, mul_sub, ← mul_assoc,
-        mul_comm ↑d p.1, mul_assoc p.1,
-        mul_comm ↑d (p.2 * q.1), mul_assoc p.2,
-        mul_comm q.1]
+        mul_comm ↑d p.2, mul_assoc p.2,
+        mul_comm ↑d (p.1 * q.2), mul_assoc p.1,
+        mul_comm q.2]
     _ = (τ d ^ symp p ⟨d * q.1, d * q.2⟩)
       • D d (p.1 + d * q.1) (p.2 + d * q.2) := by
         simp [symp]
