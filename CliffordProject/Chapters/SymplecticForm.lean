@@ -82,10 +82,14 @@ $$`\braket{\p + \p', \q} = \braket{\p,\q} + \braket{\p',\q}.`
 :::
 
 ```lean "symp_add_left"
+omit [NeZero d] in
 lemma symp_add_left
     (p p' q : ZMod d × ZMod d) :
     symp (p + p') q =
-    symp p q + symp p' q := sorry
+    symp p q + symp p' q := by
+      unfold symp
+      simp
+      ring
 ```
 
 The symplectic inner product is additive in the second argument.
