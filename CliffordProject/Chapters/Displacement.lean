@@ -229,17 +229,95 @@ lemma D_p_neq_D_q
   -- Probably not the correct statement yet!
   constructor
   · intro h
-    have h' : (β⁻¹ * α) • D d p.1 p.2 = D d q.1 q.2 := by
-      calc (β⁻¹ * α) • D d p.1 p.2 =
-        β⁻¹ • (α • D d p.1 p.2) := by
-            rw [mul_smul, ← smul_assoc]
-        _ = β⁻¹ • (β • D d q.1 q.2) := by
-            rw [h]
-        _ = D d q.1 q.2 := by
-            rw [inv_smul_smul₀ (NeZero.ne β)]
-    sorry
+    let c1 : ℂ := α * τ d ^ (p.1 * p.2)
+    let c2 : ℂ := β * τ d ^ (q.1 * q.2)
+    have hc1 : c1 = α * τ d ^ (p.1 * p.2) := by rfl
+    have hc2 : c2 = β * τ d ^ (q.1 * q.2) := by rfl
+    let kq : ℤ := q.1 / d + 1
+    let kp : ℤ := p.2 / d + 1
+    let dif2 : ℕ := Int.toNat ((q.2 - q.1)  % d)
+    have hc (c : ℤ) : 0 ≤ c % ↑d := by
+        apply Int.emod_nonneg
+        exact Nat.cast_ne_zero.mpr (NeZero.ne d)
+    have h'' (a b : ℤ) :
+        (a % d).toNat + (b % d).toNat =
+        ((a + b) % d).toNat := by
+      sorry
+      --rw [← zpow_natCast, Int.toNat_of_nonneg h]
+      --apply Int.toNat_of_nonneg
+
+
+    have h' : c1 • X d ^ ((p.1 - q.1) % ↑d).toNat
+        = c2 • (Z d ^ ((q.2 + -p.2) % ↑d).toNat) := by
+      unfold D at h
+      rw [← smul_mul_assoc, ← mul_smul,
+      ← smul_mul_assoc, ← mul_smul, ← hc1, ← hc2] at h
+      apply_fun (· * (Z d ^ (-p.2 % ↑d).toNat)) at h
+      rw [mul_assoc, ← pow_add, h'', mul_assoc, ← pow_add,
+      h'', ← sub_eq_add_neg] at h
+      apply_fun ((X d ^ (-q.1 % ↑d).toNat) * ·) at h
+      rw [smul_mul_assoc, mul_smul_comm, ← mul_assoc,
+      ← pow_add, h'', add_comm, ← sub_eq_add_neg,
+      smul_mul_assoc, mul_smul_comm, ← mul_assoc,
+      ← pow_add, h'', add_comm, ← sub_eq_add_neg] at h
+      rw [sub_self, Int.zero_emod, sub_self,
+      Int.zero_emod] at h
+      have koekje : Int.toNat 0 = (0 : ℕ) := by simp
+      repeat rw [koekje] at h
+      repeat rw [pow_zero] at h
+      rw [mul_one, one_mul] at h
+      exact h
+    have hZ : Z d ^ ((q.2 + -p.2) % ↑d).toNat =
+        Matrix.diagonal (fun (i : ZMod d) =>
+        (ω d ^ (i.val * (((q.2 + -p.2) % ↑d).toNat)))) := by
+      have hZ' : Z d = Matrix.diagonal
+        (fun i : ZMod d => ω d ^ i.val) := by rfl
+      rw [hZ', Matrix.diagonal_pow]
+      simp
+      intro i
+      ring
+    rw [hZ] at h'
+    rw [X_pow_pos_n] at h'
+    simp at h'
+    have hentry : ∀ (i j : ZMod d),
+        c1 * (if j + ↑((p.1 - q.1) % ↑d).toNat = i
+        then (1 : ℂ) else 0) =
+        if i = j
+        then c2 * ω d ^ (i.val * ((q.2 + -p.2) % ↑d).toNat)
+        else 0
+    := by
+      intro i j
+      have := congr_fun (congr_fun h' i) j
+      simp [Matrix.smul_apply, Matrix.of_apply,
+      Matrix.diagonal_apply, smul_eq_mul] at this
+      simp
+      exact this
+    have koek := hentry 1 1
+    have koekje : c2 * ω d ^ ((ZMod.val (1 : ZMod d)) * ((q.2 + -p.2) % ↑d).toNat) ≠ 0 := by sorry
+    simp at koek
+    constructor
+    · split_ifs at koek with blub
+      · dsimp [Int.ModEq]
+        apply Int.emod_eq_emod_iff_emod_sub_eq_zero.mpr
+        have hdvd := (ZMod.natCast_eq_zero_iff _ d).mp blub
+        apply Int.emod_eq_zero_of_dvd
+        have hnn : 0 ≤ (p.1 - q.1) % ↑d :=
+          Int.emod_nonneg _ (by exact_mod_cast NeZero.ne d)
+        have hlt : ((p.1 - q.1) % ↑d).toNat < d := by
+          refine (Int.toNat_lt (hc (p.1 - q.1))).mpr ?_
+          refine Int.emod_lt_of_pos (p.1 - q.1) ?_
+          refine Int.natCast_pos.mpr ?_
+          exact Nat.pos_of_neZero d
+        have hzero : ((p.1 - q.1) % ↑d).toNat = 0 :=
+          Nat.eq_zero_of_dvd_of_lt hdvd hlt
+        apply Int.dvd_of_emod_eq_zero
+        have h := Int.toNat_of_nonneg hnn
+        rw [hzero, Nat.cast_zero] at h
+        exact h.symm
+      · symm at koek
+        contradiction
+    ·
   · sorry
-#check mul_smul
 
 ```
 

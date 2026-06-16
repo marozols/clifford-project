@@ -175,13 +175,13 @@ lemma tau_pow_d2_one : (τ d) ^ (d ^ 2) = 1 := by
   · exact d_invertible d
 ```
 
-:::lemma_ "tau_neq_zero" (parent := "roots_of_unity") (effort := "small") (owner := "Carli_Bruinsma")
+:::lemma_ "tau_ne_zero" (parent := "roots_of_unity") (effort := "small") (owner := "Carli_Bruinsma")
 $`τ ≠ 0`.
 :::
 
-```lean "tau_neq_zero"
+```lean "tau_ne_zero"
 omit [NeZero d] in
-lemma tau_neq_zero : τ d ≠ 0 := by
+lemma tau_ne_zero : τ d ≠ 0 := by
   unfold τ
   apply neg_ne_zero.mp
   rw [neg_neg]
