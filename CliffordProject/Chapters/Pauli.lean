@@ -162,3 +162,80 @@ lemma ZX_eq_omega_mul_XZ :
   rw [if_neg h, if_neg h]
 
 ```
+
+:::lemma_ "X_dagger" (parent := "Pauli_core") (owner := "Gina_Muuss")
+$$`X^{†} = X^(-1).`
+:::
+
+
+```lean "X_inv"
+lemma X_inv : (X d).conjTranspose  =
+(X d)^((-1 : ℤ) % d).toNat := by
+  ext i j
+  rw [X_pow_pos_n]
+  rw [Matrix.conjTranspose_apply]
+  unfold X
+  simp
+  have hfalso: (k: ZMod d) →
+    k + 1 + ↑((-1 : ℤ) % d).toNat = k := by
+      intro k
+      have h3 : 0 ≤ ((-1 : ℤ) % d) := by
+        apply Int.emod_nonneg
+        apply (Int.natCast_ne_zero.2 (NeZero.ne d))
+      rw [ZMod.natCast_toNat d h3]
+      simp only [Int.reduceNeg, ZMod.intCast_mod,
+      Int.cast_neg, Int.cast_one, add_neg_cancel_right]
+  split_ifs with h1 h2 h2; rfl
+  . exfalso
+    rw [← h1] at h2
+    exact (h2 (hfalso i))
+  . exfalso
+    rw [← h2, add_assoc] at h1
+    nth_rw 2 [add_comm] at h1
+    rw [← add_assoc] at h1
+    exact (h1 (hfalso j))
+  . rfl
+
+```
+
+```lean "X_pow_eq_mod_d"
+lemma X_pow_eq_mod_d :  (x: ℕ) → (y: ℕ) →
+  (x % d = y % d → X d ^ x = X d ^ y ) := by
+    intro x y h
+    rw [← Nat.div_add_mod x d ]
+    rw [← Nat.div_add_mod y d ]
+    rw [pow_add, pow_add, pow_mul, pow_mul]
+    rw [X_pow_d_eq_one]
+    simp only [one_pow, one_mul]
+    congr
+```
+
+```lean "X_inv_pow"
+lemma X_inv_pow : (x: ℤ) →
+  ((X d)^(x % ↑d).toNat).conjTranspose  =
+  (X d)^((-x : ℤ) % d).toNat:= by
+  intro x
+  rw [Matrix.conjTranspose_pow, X_inv, ← pow_mul]
+  -- Reduce the problem to the exponents mod d
+  apply X_pow_eq_mod_d
+  -- What follows is some annoying dealing with the casts
+  -- This is not particularly interesting
+  have h_mod_non_neg (y: ℤ) := Int.emod_nonneg (y : ℤ)
+    (Int.natCast_ne_zero.2 (NeZero.ne d))
+  rw [← (Int.toNat_mul
+    (h_mod_non_neg (-1 : ℤ)) (h_mod_non_neg x))]
+  nth_rw 5 [← Int.toNat_natCast d]
+  rw [← Int.toNat_emod
+    (h_mod_non_neg (-x))  (Nat.cast_nonneg d)]
+  nth_rw 3 [← Int.toNat_natCast d]
+  rw [← Int.toNat_emod
+  (Int.mul_nonneg
+    (h_mod_non_neg (-1 : ℤ)) (h_mod_non_neg (x : ℤ)))
+  (Nat.cast_nonneg d)]
+  rw [← Int.mul_emod]
+  simp only [Int.reduceNeg, neg_mul, one_mul,
+    dvd_refl, Int.emod_emod_of_dvd]
+
+```
+
+```
