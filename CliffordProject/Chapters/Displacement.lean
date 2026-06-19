@@ -60,8 +60,38 @@ where $`\dagger` denotes the conjugate transpose.
 
 ```lean "D_conj"
 lemma conjTranspose_D (x z : ℤ) :
-    (D d x z).conjTranspose = D d (-x) (-z) :=
-  sorry
+    (D d x z).conjTranspose = D d (-x) (-z) := by
+  unfold D
+  rw [Matrix.conjTranspose_mul, Matrix.conjTranspose_smul]
+  rw [X_inv_pow]
+  ext i j
+  rw [Matrix.conjTranspose_apply]
+  --unfold Matrix.conjTranspose_mul
+
+  --rw [Matrix.conjTranspose_mul]
+  simp
+
+
+  have h_commute : ∀ k:ℤ, ∀ l:ℤ,
+  X d ^ (k % d).toNat* Z d ^ (l % d).toNat =
+    ω d ^(-k * l) • (Z d ^ (l % d).toNat * X d ^ (k % d).toNat ) := sorry
+  rw [(h_commute), ←(tau_sq_eq_omega d)]
+  simp
+  --unfold τ
+
+  rw [starRingEnd_apply]
+  #check starRingEnd
+  #check star_pow
+  #check star_neg
+  --rw[star_neg]
+  --simp only [RCLike.star_def]
+  --simp only [RCLike.star_def, even_two, Even.neg_pow]
+  rw[ ← Complex.exp_conj]
+  rw [← Complex.exp_nsmul,← Complex.exp_int_mul, ← Complex.exp_neg]
+  #check neg_mul
+--  rw [neg_smul, ← Complex.exp_int_mul,  ← Complex.exp_add]
+
+
 ```
 
 Multiplication of displacement operators corresponds to adding their subscripts and introducing a phase given by the symplectic inner product, see Eq. (10) in {citet Appleby}[].

@@ -238,4 +238,43 @@ lemma X_inv_pow : (x: ℤ) →
 
 ```
 
+
+```lean "Z_inv"
+lemma Z_inv : (Z d).conjTranspose  =
+(Z d)^((-1 : ℤ) % d).toNat := by
+  ext i j
+  rw [Matrix.conjTranspose_apply]
+  have hdiag : (Z d) =
+    Matrix.diagonal (fun i => ω d ^ i.val) := rfl
+  #check Matrix.diagonal_pow
+  #check Matrix.diagonal_pow (fun (i: ZMod d) => ω d ^ i.val) ((-1:ℤ) % d).toNat
+  rw [hdiag, Matrix.diagonal_pow,
+    Matrix.diagonal_apply,
+    Matrix.diagonal_apply]
+  simp
+  split_ifs with h1 h2 h2
+  . rw [h1]
+    simp
+    rw [← pow_mul, mul_comm, pow_mul]
+    have h_mod_non_neg (y: ℤ) := Int.emod_nonneg (y : ℤ)
+      (Int.natCast_ne_zero.2 (NeZero.ne d))
+    #check ((-1:ℤ ) % d)
+    #check (h_mod_non_neg (-1: ℤ ))
+    have homega :
+      (starRingEnd ℂ ) (ω d) = ω d ^ (-1 : ℤ ) := by
+      unfold ω
+      rw [← Complex.exp_conj, ← Complex.exp_int_mul]
+      rw [starRingEnd_apply]
+      simp
+      rw [neg_div]
+    rw [homega]
+    #check Int.pow_add
+    rw [← pow_mul, ]
+  . exfalso
+    exact (h2 h1.symm)
+  . exfalso
+    exact (h1 h2.symm)
+  simp only [map_zero]
+
+
 ```
