@@ -78,7 +78,7 @@ where $`τ` is the root of unity from {uses "tau"}[] and $`\braket{\cdot,\cdot}`
 -- If you change it, you can also update my proof
 lemma D_mul (p q : ZMod d × ZMod d) :
     (D d p.1 p.2) * (D d q.1 q.2) =
-    τ d ^ symp p q •
+    τ d ^ (symp p q).val •
     D d (p.1 + q.1) (p.2 + q.2) := by
   sorry
 
@@ -108,10 +108,15 @@ lemma D_pow_nsmul (p : ZMod d × ZMod d) (n : ℕ) :
     simp
   | succ n ih =>
     rw [pow_succ, ih]
-    sorry
-    -- rw [D_mul]
-    -- simp [symp_smul_left, self_eq_zero]
+    rw [D_mul]
+    have h : symp ( n • p) p = 0 := by
+      unfold symp; simp; ring
+    rw [h, ZMod.val_zero, pow_zero, one_smul]
+    simp; ring
+
+
 ```
+
 
 If $`d` is odd, adding a multiple of $`d` to the index of a displacement operator does not change it, see Eq. (11) in {citet Appleby}[].
 
@@ -219,7 +224,6 @@ $$`α D_\p = β D_\q`
 if and only if $`\p \equiv \q \pmod{d}`.
 :::
 
-
 ```lean "D_p_neq_D_q"
 lemma D_p_neq_D_q
     (p q : ℤ × ℤ)
@@ -285,7 +289,7 @@ lemma D_p_neq_D_q
 
 Displacement operators with phases that are arbitrary powers of $`τ` form a group.
 
-:::definition "Pauli_group" (parent := "displacement_core")
+:::definition "Pauli_group" (parent := "displacement_core") (owner := "William_Hasley")
 The *generalized Pauli group* or *discrete Weyl–Heisenberg group* consists of
 $$`\GP(d) = \{τ^a D_\p : a ∈ ℤ_d, \p ∈ ℤ_d^2\}`
 where $`τ` is from {uses "tau"}[] and $`D_\p` is from {uses "displacement"}[].
