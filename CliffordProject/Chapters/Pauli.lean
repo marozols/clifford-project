@@ -123,14 +123,24 @@ The $`d`-th power of the $`d`-dimensional Pauli $`Z` matrix is the identity matr
 $$`Z^d = I.`
 :::
 
-```lean "Z_pow_d_eq_one"
-lemma Z_pow_d_eq_one : (Z d) ^ d = 1 := by
+```lean "Z_pow_n"
+lemma Z_pow_n (n : ℕ) :
+    Z d ^ n = Matrix.diagonal
+    (fun i => ω d ^ (i.val * n)):= by
   have hdiag : (Z d) =
     Matrix.diagonal (fun i => ω d ^ i.val) := rfl
-  ext i j
-  rw [hdiag, Matrix.diagonal_pow, Matrix.diagonal_apply,
-    Pi.pow_apply, ← pow_mul, mul_comm, pow_mul,
-    omega_pow_d_eq_one, one_pow]
+  rw [hdiag, Matrix.diagonal_pow]
+  simp
+  intro i
+  rw [← pow_mul]
+```
+
+```lean "Z_pow_d_eq_one"
+lemma Z_pow_d_eq_one : (Z d) ^ d = 1 := by
+  rw [Z_pow_n]
+  simp
+  ext i
+  rw [mul_comm, pow_mul, omega_pow_d_eq_one, one_pow]
   rfl
 ```
 
@@ -142,7 +152,7 @@ $$`Z X = ω X Z.`
 :::
 
 ```lean "ZX_eq_omega_mul_XZ"
-#check pow_mod_orderOf
+
 lemma ZX_eq_omega_mul_XZ :
   Z d * X d = ω d • (X d * Z d) := by
   ext i j

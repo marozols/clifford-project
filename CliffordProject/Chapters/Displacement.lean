@@ -46,8 +46,8 @@ where $`τ` comes from {uses "tau"}[], $`X` comes from {uses "Pauli_X"}[], and $
 
 ```lean "displacement"
 noncomputable def D
-  (x z : ℤ) : Matrix (ZMod d) (ZMod d) ℂ :=
-  (τ d)^(x * z) • (X d)^(x % d).toNat * (Z d)^(z % d).toNat
+  (x z : ZMod d) : Matrix (ZMod d) (ZMod d) ℂ :=
+  (τ d)^(x.val * z.val) • (X d)^(x.val) * (Z d)^(z.val)
 ```
 
 Displacement operators behave nicely under complex conjugation, see Eq. (9) in {citet Appleby}[].
@@ -106,7 +106,7 @@ where $`τ` is the root of unity from {uses "tau"}[] and $`\braket{\cdot,\cdot}`
 -- Carli added this definition, I needed it in the proof of D_add_nsmul
 -- Feel free to change it if necessary!
 -- If you change it, you can also update my proof
-lemma D_mul (p q : ℤ × ℤ) :
+lemma D_mul (p q : ZMod d × ZMod d) :
     (D d p.1 p.2) * (D d q.1 q.2) =
     τ d ^ symp p q •
     D d (p.1 + q.1) (p.2 + q.2) := by
@@ -129,7 +129,7 @@ The result follows since $`\langle n\p,\p\rangle = n \langle\p,\p\rangle = 0` th
 :::
 
 ```lean "D_pow_nsmul"
-lemma D_pow_nsmul (p : ℤ × ℤ) (n : ℕ) :
+lemma D_pow_nsmul (p : ZMod d × ZMod d) (n : ℕ) :
     D d p.1 p.2 ^ n = D d (n • p).1 (n • p).2 := by
   induction n with
   | zero =>
@@ -150,14 +150,14 @@ If $`d` is odd then $`D_{\p+d\q} = D_{\p}` for all $`\p, \q ∈ ℤ^2`.
 :::
 
 ```lean "D_add_nsmul"
-lemma D_add_nsmul (p q : ℤ × ℤ) (hodd : Odd d) :
+lemma D_add_nsmul (p q : ZMod d × ZMod d) (hodd : Odd d) :
     D d (p.1 + d * q.1) (p.2 + d * q.2)
     = D d p.1 p.2 :=
   have h : (D d (d * q).1 (d * q).2) = 1 := by
     unfold D
     norm_num
-    rw [mul_assoc, zpow_mul, zpow_natCast,
-    tau_pow_d_eq_one_of_odd d hodd, one_zpow, one_smul]
+    --rw [mul_assoc, zpow_mul, zpow_natCast,
+    --tau_pow_d_eq_one_of_odd d hodd, one_zpow, one_smul]
   calc D d (p.1 + d * q.1) (p.2 + d * q.2) =
     (1 : ℂ) • D d (p.1 + d * q.1) (p.2 + d * q.2) := by
         norm_num
@@ -257,8 +257,60 @@ lemma D_p_neq_D_q
     α • (D d p.1 p.2) = β • (D d q.1 q.2) ↔
     (p.1 ≡ q.1 [ZMOD (d : ℤ)] ∧
     p.2 ≡ q.2 [ZMOD (d : ℤ)]) := by
-  sorry
+  let c1 : ℂ := α * τ d ^ (p.1 * p.2)
+  let c2 : ℂ := β * τ d ^ (q.1 * q.2)
+  have hc1 : c1 = α * τ d ^ (p.1 * p.2) := by rfl
+  have hc2 : c2 = β * τ d ^ (q.1 * q.2) := by rfl
 
+  constructor
+  · unfold D
+    intro h
+    rw [← smul_mul_assoc, ← mul_smul,
+      ← smul_mul_assoc, ← mul_smul, ← hc1, ← hc2] at h
+    apply_fun (· * (Z d ^ (-p.2 % ↑d).toNat)) at h
+    rw [mul_assoc, Z_pow_add_mod_d d, add_neg_cancel,
+      Int.zero_emod, Int.toNat_zero, pow_zero, mul_one,
+      mul_assoc, Z_pow_add_mod_d d, ← sub_eq_add_neg] at h
+    apply_fun ((X d ^ (-q.1 % ↑d).toNat) * · ) at h
+    rw [mul_smul_comm, smul_mul_assoc, mul_smul_comm,
+      ← mul_assoc] at h
+    repeat rw [X_pow_add_mod_d] at h
+    rw [neg_add_cancel, Int.zero_emod, Int.toNat_zero,
+    pow_zero, one_mul, add_comm, ← sub_eq_add_neg,
+    X_pow_pos_n, Z_pow_n] at h
+    apply Matrix.ext_iff.mpr at h
+    rw [← Matrix.smul_apply] at h
+    constructor
+    · specialize h 0 0
+      simp at h
+      by_cases h1 : (↑((p.1 - q.1) % ↑d).toNat : ZMod d) = 0
+      · have h1' : ((p.1 - q.1) % ↑d).toNat = 0 := by
+          rw [ZMod.natCast_eq_zero_iff,
+            Nat.dvd_iff_mod_eq_zero] at h1
+          have hd : d = (↑d : ℤ).toNat :=
+            Int.toNat_natCast d
+          nth_rewrite 2 [hd] at h1
+          rw [← Int.toNat_emod
+              (mod_d_nonneg d (p.1 - q.1))
+              (Int.natCast_nonneg d),
+              Int.emod_emod] at h1
+          exact h1
+        rw [Int.toNat_eq_zero] at h1'
+        rw [Int.ModEq,
+          Int.emod_eq_emod_iff_emod_sub_eq_zero]
+        exact le_antisymm h1'
+          (mod_d_nonneg d (p.1 - q.1))
+      · rw [if_neg h1, hc2] at h
+        symm at h
+        apply mul_eq_zero.mp at h
+        rcases h with hL | hR
+        · exact absurd hL (NeZero.ne β)
+        · exact absurd hR
+            (zpow_ne_zero (q.1 * q.2) (tau_ne_zero d))
+    · -- idea: for any i, we must have that omega ^ i * (q2 - p2) % d = 1
+      -- only possible if (q2 - p2) % d = 0
+      sorry
+  · sorry
 ```
 
 Displacement operators with phases that are arbitrary powers of $`τ` form a group.

@@ -240,3 +240,9 @@ lemma tau_ne_zero : τ d ≠ 0 := by
   rw [neg_neg]
   exact Complex.exp_ne_zero (↑Real.pi * Complex.I / ↑d)
 ```
+
+```lean "zero_le_c_mod_d"
+lemma mod_d_nonneg (a : ℤ) : 0 ≤ a % ↑d := by
+    apply Int.emod_nonneg
+    exact Nat.cast_ne_zero.mpr (NeZero.ne d)
+```
