@@ -110,31 +110,26 @@ lemma omega_pow_k_mod_d_eq_pow_k :
 lemma omega_pow_k_mod_d_eq_pow_k_int :
   ∀ k : Int, (ω d) ^ k = (ω d) ^ (k % d) := by
     intro k
-    have equiv : k ≡ ((k % d)) [ZMOD (orderOf (ω d))] := by
-      rw [order_omega]
-      sorry
-      --exact Int.ModEq.symm (Int.mod_modEq k ↑d)
-    #check zpow_eq_zpow_iff_modEq.2 equiv
-    --apply zpow_eq_zpow_iff_modEq.2
-    #check Int.modEq_modulus_add_iff
-    nth_rw 1 [←(Int.emod_add_mul_ediv k d)]
-    have omega_cancel_mult_of_d : (l : ℤ) → (ω d) ^ (d * l) = 1 := sorry
-    #check zpow_eq_zpow_iff_modEq
-    #check omega_cancel_mult_of_d
-    set m : ℤ := (k / (Nat.cast d)) with hm
-    #check pow_add
+    nth_rw 1 [← (Int.emod_add_ediv_mul k d)]
+    rw [zpow_add']
+    nth_rw 2 [mul_comm]
+    rw [zpow_mul]
+    rw [zpow_natCast]
+    rw [omega_pow_d_eq_one, one_zpow, mul_one]
+    apply Or.inl
     unfold ω
-    rw [← Complex.exp_int_mul, ← Complex.exp_int_mul]
-    simp
-    rw [add_mul, Complex.exp_add]
-    simp
-    rw [mul_comm, ← mul_div_right_comm]
-    #check (Complex.exp_two_pi_mul_I_mul_div_eq_one_iff)
-    #check (Complex.exp_two_pi_mul_I_mul_div_eq_one_iff (NeZero.ne d)).2
-
-    --apply (Complex.exp_two_pi_mul_I_mul_div_eq_one_iff (NeZero.ne d)).2
-    sorry
+    apply Complex.exp_ne_zero
 ```
+
+```lean "omega_pow_k_mod_d_eq_pow_k_zmod"
+lemma omega_pow_k_mod_d_eq_pow_k_zmod :
+  ∀ k : Int, (ω d) ^ k = (ω d) ^ (k : ZMod d).val := by
+    intro k
+    rw [omega_pow_k_mod_d_eq_pow_k_int]
+    rw [(Eq.symm (ZMod.val_intCast k))]
+    exact zpow_natCast (ω d) (k : ZMod d).val
+```
+
 
 We will also need another root of unity which we call $`τ`.
 

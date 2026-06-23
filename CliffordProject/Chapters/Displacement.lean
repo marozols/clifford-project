@@ -63,7 +63,7 @@ lemma conjTranspose_D (x z : ℤ) :
     (D d x z).conjTranspose = D d (-x) (-z) := by
   unfold D
   rw [Matrix.conjTranspose_mul, Matrix.conjTranspose_smul]
-  rw [X_inv_pow]
+  rw [X_inv_pow, Z_inv_pow]
   ext i j
   rw [Matrix.conjTranspose_apply]
   --unfold Matrix.conjTranspose_mul

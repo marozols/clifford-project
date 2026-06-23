@@ -180,7 +180,7 @@ $$`X^{†} = X^(-1).`
 
 ```lean "X_inv"
 lemma X_inv : (X d).conjTranspose  =
-(X d)^((-1 : ℤ) % d).toNat := by
+(X d)^((-1 : ZMod d).val) := by
   ext i j
   rw [X_pow_pos_n]
   rw [Matrix.conjTranspose_apply]
@@ -198,12 +198,14 @@ lemma X_inv : (X d).conjTranspose  =
   split_ifs with h1 h2 h2; rfl
   . exfalso
     rw [← h1] at h2
-    exact (h2 (hfalso i))
+    simp only [add_neg_cancel_right,
+      not_true_eq_false] at h2
   . exfalso
     rw [← h2, add_assoc] at h1
     nth_rw 2 [add_comm] at h1
     rw [← add_assoc] at h1
-    exact (h1 (hfalso j))
+    simp only [add_neg_cancel_right,
+      not_true_eq_false] at h1
   . rfl
 
 ```
@@ -221,70 +223,74 @@ lemma X_pow_eq_mod_d :  (x: ℕ) → (y: ℕ) →
 ```
 
 ```lean "X_inv_pow"
-lemma X_inv_pow : (x: ℤ) →
-  ((X d)^(x % ↑d).toNat).conjTranspose  =
-  (X d)^((-x : ℤ) % d).toNat:= by
+lemma X_inv_pow : (x: ZMod d) →
+  ((X d)^(x.val)).conjTranspose  =
+  (X d)^((-x).val):= by
   intro x
   rw [Matrix.conjTranspose_pow, X_inv, ← pow_mul]
-  -- Reduce the problem to the exponents mod d
   apply X_pow_eq_mod_d
-  -- What follows is some annoying dealing with the casts
-  -- This is not particularly interesting
-  have h_mod_non_neg (y: ℤ) := Int.emod_nonneg (y : ℤ)
-    (Int.natCast_ne_zero.2 (NeZero.ne d))
-  rw [← (Int.toNat_mul
-    (h_mod_non_neg (-1 : ℤ)) (h_mod_non_neg x))]
-  nth_rw 5 [← Int.toNat_natCast d]
-  rw [← Int.toNat_emod
-    (h_mod_non_neg (-x))  (Nat.cast_nonneg d)]
-  nth_rw 3 [← Int.toNat_natCast d]
-  rw [← Int.toNat_emod
-  (Int.mul_nonneg
-    (h_mod_non_neg (-1 : ℤ)) (h_mod_non_neg (x : ℤ)))
-  (Nat.cast_nonneg d)]
-  rw [← Int.mul_emod]
-  simp only [Int.reduceNeg, neg_mul, one_mul,
-    dvd_refl, Int.emod_emod_of_dvd]
-
+  rw [← ZMod.val_mul, neg_mul, one_mul]
+  rw [(Nat.mod_eq_of_lt (ZMod.val_lt (-x)))]
 ```
 
 
 ```lean "Z_inv"
 lemma Z_inv : (Z d).conjTranspose  =
-(Z d)^((-1 : ℤ) % d).toNat := by
+(Z d)^((-1 : ZMod d).val) := by
   ext i j
   rw [Matrix.conjTranspose_apply]
   have hdiag : (Z d) =
     Matrix.diagonal (fun i => ω d ^ i.val) := rfl
-  #check Matrix.diagonal_pow
-  #check Matrix.diagonal_pow (fun (i: ZMod d) => ω d ^ i.val) ((-1:ℤ) % d).toNat
   rw [hdiag, Matrix.diagonal_pow,
     Matrix.diagonal_apply,
     Matrix.diagonal_apply]
-  simp
+  simp only [RCLike.star_def, Pi.pow_apply]
   split_ifs with h1 h2 h2
   . rw [h1]
     simp
     rw [← pow_mul, mul_comm, pow_mul]
-    have h_mod_non_neg (y: ℤ) := Int.emod_nonneg (y : ℤ)
-      (Int.natCast_ne_zero.2 (NeZero.ne d))
-    #check ((-1:ℤ ) % d)
-    #check (h_mod_non_neg (-1: ℤ ))
     have homega :
-      (starRingEnd ℂ ) (ω d) = ω d ^ (-1 : ℤ ) := by
+      (starRingEnd ℂ ) (ω d) = ω d ^ (-1 : ℤ) := by
       unfold ω
       rw [← Complex.exp_conj, ← Complex.exp_int_mul]
       rw [starRingEnd_apply]
       simp
       rw [neg_div]
-    rw [homega]
-    #check Int.pow_add
-    rw [← pow_mul, ]
+    rw [homega, omega_pow_k_mod_d_eq_pow_k_zmod]
+    congr
+    simp only [Int.reduceNeg, Int.cast_neg, Int.cast_one]
   . exfalso
     exact (h2 h1.symm)
   . exfalso
     exact (h1 h2.symm)
   simp only [map_zero]
+```
 
 
+```lean "Z_pow_eq_mod_d"
+lemma Z_pow_eq_mod_d :  (x: ℕ) → (y: ℕ) →
+  (x % d = y % d → Z d ^ x = Z d ^ y ) := by
+  -- This is exactly the same proof as for X,
+  -- maybe we can consolidate
+    intro x y h
+    rw [← Nat.div_add_mod x d ]
+    rw [← Nat.div_add_mod y d ]
+    rw [pow_add, pow_add, pow_mul, pow_mul]
+    rw [Z_pow_d_eq_one]
+    simp only [one_pow, one_mul]
+    congr
+```
+
+
+```lean "Z_inv_pow"
+lemma Z_inv_pow : (x: ZMod d) →
+  ((Z d)^(x.val)).conjTranspose  =
+  (Z d)^((-x).val):= by
+  -- This is exactly the same proof as for X,
+  -- maybe we can consolidate
+  intro x
+  rw [Matrix.conjTranspose_pow, Z_inv, ← pow_mul]
+  apply Z_pow_eq_mod_d
+  rw [← ZMod.val_mul, neg_mul, one_mul]
+  rw [(Nat.mod_eq_of_lt (ZMod.val_lt (-x)))]
 ```
