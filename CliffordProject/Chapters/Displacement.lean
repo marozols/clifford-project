@@ -209,6 +209,11 @@ $$`α D_\p = β D_\q`
 then $`\p \equiv \q \pmod{d}`.
 :::
 
+:::proof "D_p_neq_D_q"
+This theorem always holds when $`d = 1`.
+For $`d > 1`, (to be continues... from the assumption, you work out the matrices, take the diagonal entries at 0 and 1, and find your proof)
+:::
+
 ```lean "D_p_neq_D_q"
 lemma D_p_neq_D_q
     (p q : ZMod d × ZMod d)
@@ -219,13 +224,9 @@ lemma D_p_neq_D_q
   intro h
   by_cases hd : d = 1
   · subst d
-    constructor
-    · exact Subsingleton.elim p.1 q.1
-    · exact Subsingleton.elim p.2 q.2
-  · have hd' :=
-      Nat.one_lt_iff_ne_zero_and_ne_one.mpr
-      ⟨NeZero.ne d, hd⟩
-    rw [← smul_mul_assoc, ← mul_smul,
+    exact ⟨Subsingleton.elim p.1 q.1,
+      Subsingleton.elim p.2 q.2⟩
+  · rw [← smul_mul_assoc, ← mul_smul,
       ← smul_mul_assoc, ← mul_smul] at h
     apply_fun (· * (Z d ^ (-p.2).val)) at h
     rw [mul_assoc, ← pow_add, Z_pow_n_mod_d,
@@ -237,42 +238,52 @@ lemma D_p_neq_D_q
     rw [mul_smul_comm, smul_mul_assoc, mul_smul_comm,
       ← mul_assoc, ← pow_add, X_pow_n_mod_d,
       ← ZMod.val_add, add_comm, ← sub_eq_add_neg,
-      ← pow_add] at h
-    nth_rewrite 2 [X_pow_n_mod_d] at h
-    rw [← ZMod.val_add, add_comm, ← sub_eq_add_neg,
+      ← pow_add, X_pow_n_mod_d d ((-q.1).val + q.1.val),
+      ← ZMod.val_add, add_comm, ← sub_eq_add_neg,
       sub_self, ZMod.val_zero, pow_zero, one_mul] at h
     apply Matrix.ext_iff.mpr at h
     rw [X_pow_pos_n, Z_pow_n, ZMod.natCast_val] at h
-    have h1 : p.1 = q.1 := by
-      apply_fun ( · -q.1)
-      simp
-      specialize h 0 0
-      simp at h
+    have hphase := h 0 0
+    rw [Matrix.smul_apply, Matrix.smul_apply,
+      Matrix.diagonal_apply, if_pos rfl, ZMod.val_zero,
+      zero_mul, pow_zero, smul_eq_mul, smul_eq_mul, mul_one,
+      Matrix.of_apply, zero_add, ZMod.cast_id] at hphase
+    have h1 : p.1 - q.1 = 0 := by
       by_contra h1'
-      rw [if_neg h1'] at h
-      symm at h
-      have h_false := mul_ne_zero
+      rw [if_neg h1', mul_zero] at hphase
+      have h_false := (mul_ne_zero
           (NeZero.ne β) (pow_ne_zero
-          (q.1.val * q.2.val) (tau_ne_zero d))
+          (q.1.val * q.2.val) (tau_ne_zero d))).symm
       contradiction
-      unfold Function.Injective
-      simp
     constructor
-    · exact h1
-    · have hphase := h 0 0
-      rw [h1] at hphase
-      simp at hphase
+    · apply_fun ( · -q.1) using sub_left_injective
+      dsimp only
+      rw [sub_self]
+      exact h1
+    · rw [if_pos h1, mul_one] at hphase
       specialize h 1 1
-      rw [h1] at h
-      simp at h
-      rw [← hphase] at h
-      rw [ZMod.val_one'' hd, one_mul] at h
+      rw [h1, Matrix.smul_apply, Matrix.smul_apply,
+        Matrix.of_apply, Matrix.diagonal_apply,
+        ← hphase, ZMod.cast_zero, add_zero, if_pos rfl,
+        if_pos rfl, smul_eq_mul, smul_eq_mul, mul_one,
+        ZMod.val_one''
+          (Ne.symm (Ne.intro fun a => hd (id (Eq.symm a)))),
+        one_mul] at h
       apply_fun
-        ((α * τ d ^ (q.1.val * p.2.val))⁻¹ * · ) at h
-      rw [mul_comm] at h
-      rw [← mul_assoc] at h
-      nth_rw 7 [mul_comm] at h
-      rw [Complex.mul_inv_cancel, one_mul] at h
+        ((α * τ d ^ (p.1.val * p.2.val))⁻¹ * · ) at h
+      have c1 : (α * τ d ^ (p.1.val * p.2.val)) ≠ 0 :=
+        mul_ne_zero (NeZero.ne α)
+        (pow_ne_zero _ (tau_ne_zero d))
+      have c2 : 2 * ↑Real.pi * Complex.I ≠ (0 : ℂ)
+          := by norm_num
+      have c3 : 2 * ↑Real.pi * Complex.I / ↑d ≠ (0 : ℂ)
+          := by
+        apply Complex.normSq_pos.mp
+        norm_num
+        exact (NeZero.ne d)
+      rw [mul_comm, ← mul_assoc, Complex.mul_inv_cancel c1,
+        mul_comm ((α * τ d ^ (p.1.val * p.2.val))⁻¹),
+        Complex.mul_inv_cancel c1, one_mul] at h
       unfold ω at h
       symm at h
       rw [← Complex.exp_nat_mul] at h
@@ -280,41 +291,31 @@ lemma D_p_neq_D_q
       obtain ⟨n, hn⟩ := h
       apply_fun
         (· * (2 * ↑Real.pi * Complex.I / ↑d)⁻¹) at hn
-      rw [mul_assoc, Complex.mul_inv_cancel, mul_one,
+      rw [mul_assoc, Complex.mul_inv_cancel c3, mul_one,
         div_eq_mul_inv, mul_inv, inv_inv, mul_assoc,
         ← mul_assoc ((2 * ↑Real.pi * Complex.I)),
-        Complex.mul_inv_cancel, one_mul] at hn
+        Complex.mul_inv_cancel c2, one_mul] at hn
       have hn_int : ((q.2 - p.2).val : ℤ) = n * d := by
         exact_mod_cast hn
-      have h_ub : ((q.2 - p.2).val : ℤ) < d :=
-        Int.ofNat_lt.mpr (ZMod.val_lt (q.2 - p.2))
-      rw [hn_int] at h_ub
-      have h_lb : 0 ≤ ((q.2 - p.2).val : ℤ) := by
+      have hd : 0 < (↑d : ℤ) :=
+        Int.natCast_pos.mpr (NeZero.pos d)
+      have h_ub : n ≤ 0 := by -- n * ↑d < d := by
+        rw [← sub_self 1]
+        apply Int.le_sub_one_of_lt
+        apply (mul_lt_iff_lt_one_left hd).mp
+        rw [← hn_int]
+        exact Int.ofNat_lt.mpr (ZMod.val_lt (q.2 - p.2))
+      have h_lb : 0 ≤ n * ↑d := by
+        rw [← hn_int]
         apply Int.natCast_nonneg
-      rw [hn_int] at h_lb
-      have hd : 0 < (↑d : ℤ) := Int.lt_of_le_of_lt h_lb h_ub
-      apply (mul_lt_iff_lt_one_left hd).mp at h_ub
-      apply Int.le_sub_one_of_lt at h_ub
-      rw [sub_self] at h_ub
       have h_lb := Int.nonneg_of_mul_nonneg_left h_lb hd
-      have hn_zero : n = 0 := le_antisymm h_ub h_lb
-      rw [hn_zero, zero_mul] at hn_int
+      rw [le_antisymm h_ub h_lb, zero_mul] at hn_int
       have h2 : q.2 - p.2 = 0 :=
         (ZMod.val_eq_zero (q.2 - p.2)).mp
         (Int.ofNat_eq_zero.mp hn_int)
       apply_fun (· +p.2) at h2
       rw [sub_add, sub_self, sub_zero, zero_add] at h2
-      symm
-      exact h2
-      norm_num
-      norm_num
-      exact (NeZero.ne d)
-      norm_num
-      constructor
-      exact (NeZero.ne α)
-      intro tau_zero
-      have tau_ne_zero := tau_ne_zero d
-      contradiction
+      exact h2.symm
 ```
 
 Displacement operators with phases that are arbitrary powers of $`τ` form a group.
