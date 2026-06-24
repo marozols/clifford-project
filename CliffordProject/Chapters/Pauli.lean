@@ -166,7 +166,7 @@ lemma ZX_eq_omega_mul_XZ :
   by_cases h : i = j + 1
   /- Case 1: h : i = j + 1-/
   . rw [if_pos h, if_pos h, h, ← pow_succ', ZMod.val_add,
-    (omega_pow_k_mod_d_eq_pow_k d (j.val + 1)),
+    (omega_pow_n_mod_d d (j.val + 1)),
     ZMod.val_one_eq_one_mod, Nat.add_mod_mod]
   /- Case 2: h : i ≠ j + 1-/
   rw [if_neg h, if_neg h]
@@ -189,7 +189,8 @@ lemma Z_pow_X_pow_eq_omega_mul_X_pow_Z_pow (k : ℕ) (ℓ : ℕ) :
     | succ ℓ ih =>
       nth_rw 1 [pow_succ']
       nth_rw 1 [← mul_assoc]
-      have h : Z d ^ k * X d * X d ^ ℓ =  ω d ^ k • X d * Z d ^ k * X d ^ ℓ := by
+      have h : Z d ^ k * X d * X d ^ ℓ =
+          ω d ^ k • X d * Z d ^ k * X d ^ ℓ := by
         sorry
       rw [h]
       nth_rw 1 [mul_assoc]
@@ -218,66 +219,18 @@ lemma Z_pow_X_pow_eq_omega_mul_X_pow_Z_pow (k : ℕ) (ℓ : ℕ) :
         simp
         rw [pow_succ']
       | succ k ih2 =>-/
-
-
 ```
 
-And so do their powers.
-
-:::lemma_ "Z_pow_X_pow_eq_omega_mul_X_pow_Z_pow" (parent := "Pauli_core") (owner := "Daan_Planken")
-Pauli $`X` and $`Z` matrices satisfy the following commutation relation:
-$$`Z^k X^ℓ = ω^{k·ℓ} X^ℓ Z^k.`
+:::lemma_ "X_pow_n_mod_d and Z_pow_n_mod_d" (parent := "Pauli_core") (owner := "Carli_Bruinsma")
+Powers of Pauli $`X` and $`Z` satisfy
+$$`X^n = X^{n \% d}`
+$$`Z^n = Z^{n \% d}`
 :::
 
-```lean "Z_pow_X_pow_eq_omega_mul_X_pow_Z_pow"
-lemma Z_pow_X_pow_eq_omega_mul_X_pow_Z_pow (k : ℕ) (ℓ : ℕ) :
-  (Z d) ^ k * (X d) ^ ℓ = (ω d) ^ (k * ℓ) •
-  ((X d) ^ ℓ * (Z d) ^ k) := by
-    induction ℓ with
-    | zero => simp
-    | succ ℓ ih =>
-      nth_rw 1 [pow_succ']
-      nth_rw 1 [← mul_assoc]
-      have h : Z d ^ k * X d * X d ^ ℓ =  ω d ^ k • X d * Z d ^ k * X d ^ ℓ := by
-        sorry
-      rw [h]
-      nth_rw 1 [mul_assoc]
-      --nth_rw 1 [mul_comm]
-      rw [Matrix.smul_mul]
-      rw [← Matrix.mul_smul]
-      rw [ih]
-      rw [smul_smul]
-      simp
-      rw [← pow_add]
-      rw [← mul_one_add]
-      rw [← mul_assoc]
-      rw [← pow_succ']
-      rw [add_comm]
-
-      --#check Matrix.mul_smul
-      /-rw [smul_mul_assoc]
-      rw [ih]
-      rw [smul_smul]
-      rw [← pow_add]
-      rw [add_comm]
-      rw [← mul_add_one]
-
-      induction k with
-      | zero =>
-        simp
-        rw [pow_succ']
-      | succ k ih2 =>-/
-
-
-```
-
-
-```lean "X_pow_n_mod_d"
+```lean "X_pow_n_mod_d and Z_pow_n_mod_d"
 theorem X_pow_n_mod_d (n : ℕ): X d ^ n = X d ^ (n % ↑d) :=
   pow_eq_pow_mod n (X_pow_d_eq_one d)
-```
 
-```lean "Z_pow_n_mod_d"
 theorem Z_pow_n_mod_d (n : ℕ): Z d ^ n = Z d ^ (n % ↑d) :=
   pow_eq_pow_mod n (Z_pow_d_eq_one d)
 ```

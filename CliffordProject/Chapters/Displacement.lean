@@ -73,9 +73,6 @@ where $`τ` is the root of unity from {uses "tau"}[] and $`\braket{\cdot,\cdot}`
 :::
 
 ```lean "D_mul"
--- Carli added this definition, I needed it in the proof of D_add_nsmul
--- Feel free to change it if necessary!
--- If you change it, you can also update my proof
 lemma D_mul (p q : ZMod d × ZMod d) :
     (D d p.1 p.2) * (D d q.1 q.2) =
     τ d ^ (symp p q).val •
@@ -157,8 +154,10 @@ This is a direct consequence of {uses "D_add_nsmul"}[]
 @[default_instance]
 instance : EuclideanDomain ℤ := Int.euclideanDomain
 
-lemma D_mod_d (p : ℤ × ℤ) (hodd : Odd d):
-    D d p.1 p.2 = D d (p.1 % d) (p.2 % d) :=
+lemma D_mod_d (p : ZMod d × ZMod d) (hodd : Odd d):
+    D d p.1 p.2 = D d p.1 p.2 :=
+    sorry
+    /-
     by calc
       D d p.1 p.2 =
       D d (p.1 % d + d * (p.1 / d))
@@ -169,7 +168,7 @@ lemma D_mod_d (p : ℤ × ℤ) (hodd : Odd d):
     _ = D d (p.1 % d) (p.2 % d)
       := D_add_nsmul d (p.1 % d, p.2 % d)
           (p.1 / d, p.2 / d) hodd
-
+    -/
 ```
 
 
@@ -185,9 +184,11 @@ By {uses "D_pow_nsmul"}[], $`D_\p^d = D_{d\p} = D_\mathbf{0} = I`, using $`d\p =
 :::
 
 ```lean "D_pow_d_eq_one"
-lemma D_pow_d_eq_one (p : ℤ × ℤ) (hOdd : Odd d) :
+lemma D_pow_d_eq_one (p : ZMod d × ZMod d) (hOdd : Odd d) :
     D d p.1 p.2 ^ d = 1 :=
-    by rw [D_pow_nsmul]; calc
+    by sorry
+
+    /-rw [D_pow_nsmul]; calc
     D d (d • p).1 (d • p).2 =
        D d ((d • p).1 % d) ((d • p).2 % d)
     := D_mod_d d (d • p) hOdd
@@ -196,6 +197,7 @@ lemma D_pow_d_eq_one (p : ℤ × ℤ) (hOdd : Odd d) :
     _ = D d 0 0
     := by simp
     _ = 1 := by unfold D; simp
+    -/
 ```
 
 Displacement operators with different $`\p` (modulo $`d`) are indeed different.
