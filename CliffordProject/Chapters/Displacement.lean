@@ -122,35 +122,18 @@ If $`d` is odd then $`D_{\p+d\q} = D_{\p}` for all $`\p, \q ∈ ℤ^2`.
 ```lean "D_add_nsmul"
 lemma D_add_nsmul (p q : ZMod d × ZMod d) (hodd : Odd d) :
     D d (p.1 + d * q.1) (p.2 + d * q.2)
-    = D d p.1 p.2 :=
-  have h : (D d (d * q).1 (d * q).2) = 1 := by
-    unfold D
-    norm_num
-    --rw [mul_assoc, zpow_mul, zpow_natCast,
-    --tau_pow_d_eq_one_of_odd d hodd, one_zpow, one_smul]
-  calc D d (p.1 + d * q.1) (p.2 + d * q.2) =
-    (1 : ℂ) • D d (p.1 + d * q.1) (p.2 + d * q.2) := by
-        norm_num
-    _ = ((1 : ℂ) ^ (p.2 * q.1 - p.1 * q.2))
-      • D d (p.1 + d * q.1) (p.2 + d * q.2) := by
-        rw [one_zpow]
-    _ = ((τ d ^ (d : ℤ)) ^ (p.2 * q.1 - p.1 * q.2))
-      • D d (p.1 + d * q.1) (p.2 + d * q.2) := by
-        rw [zpow_natCast, tau_pow_d_eq_one_of_odd d hodd]
-    _ = (τ d ^ (p.2 * (d * q.1) - p.1 * (d * q.2)))
-      • D d (p.1 + d * q.1) (p.2 + d * q.2) := by
-        rw [← zpow_mul, mul_sub, ← mul_assoc,
-        mul_comm ↑d p.2, mul_assoc p.2,
-        mul_comm ↑d (p.1 * q.2), mul_assoc p.1,
-        mul_comm q.2]
-    _ = (τ d ^ symp p ⟨d * q.1, d * q.2⟩)
-      • D d (p.1 + d * q.1) (p.2 + d * q.2) := by
-        simp [symp]
-    _ = (D d p.1 p.2) * (D d (d * q).1 (d * q).2) := by
-        simp
-        rw [D_mul d p ⟨d * q.1, d * q.2⟩]
-    _ = D d p.1 p.2 := by
-        rw [h, mul_one]
+    = D d p.1 p.2 := by
+  unfold D
+  rw [ZMod.val_add, ZMod.val_mul, Nat.add_mod,
+    ZMod.val_natCast, Nat.mod_self, zero_mul,
+    Nat.zero_mod, Nat.zero_mod, add_zero, Nat.mod_mod,
+    ZMod.val_add, ZMod.val_mul, Nat.add_mod,
+    ZMod.val_natCast, Nat.mod_self, zero_mul,
+    Nat.zero_mod, Nat.zero_mod, add_zero, Nat.mod_mod,
+    tau_pow_n_mod_d_of_d_odd, ← Nat.mul_mod,
+    ← tau_pow_n_mod_d_of_d_odd,
+   ← X_pow_n_mod_d, ← Z_pow_n_mod_d]
+  <;> exact hodd -- for tau_pow_n_mod_d_of_d_odd
 ```
 
 If $`d` is odd, the index $`\p` of a displacement operator $`D_\p` can be treated modulo $`d`.
@@ -214,73 +197,118 @@ Displacement operators with different $`\p` (modulo $`d`) are indeed different.
 
 :::lemma_ "D_p_neq_D_q" (parent := "displacement_core") (effort := "medium") (owner := "Carli_Bruinsma")
 Let $`\p,\q \in ℤ^2` and assume $`α,β ∈ ℂ` are both non-zero.
-Then
+If
 $$`α D_\p = β D_\q`
-if and only if $`\p \equiv \q \pmod{d}`.
+then $`\p \equiv \q \pmod{d}`.
 :::
 
 
 ```lean "D_p_neq_D_q"
 lemma D_p_neq_D_q
-    (p q : ℤ × ℤ)
+    (p q : ZMod d × ZMod d)
     (α β : ℂ) [NeZero α] [NeZero β] :
-    α • (D d p.1 p.2) = β • (D d q.1 q.2) ↔
-    (p.1 ≡ q.1 [ZMOD (d : ℤ)] ∧
-    p.2 ≡ q.2 [ZMOD (d : ℤ)]) := by
-  let c1 : ℂ := α * τ d ^ (p.1 * p.2)
-  let c2 : ℂ := β * τ d ^ (q.1 * q.2)
-  have hc1 : c1 = α * τ d ^ (p.1 * p.2) := by rfl
-  have hc2 : c2 = β * τ d ^ (q.1 * q.2) := by rfl
-
-  constructor
-  · unfold D
-    intro h
-    rw [← smul_mul_assoc, ← mul_smul,
-      ← smul_mul_assoc, ← mul_smul, ← hc1, ← hc2] at h
-    apply_fun (· * (Z d ^ (-p.2 % ↑d).toNat)) at h
-    rw [mul_assoc, Z_pow_add_mod_d d, add_neg_cancel,
-      Int.zero_emod, Int.toNat_zero, pow_zero, mul_one,
-      mul_assoc, Z_pow_add_mod_d d, ← sub_eq_add_neg] at h
-    apply_fun ((X d ^ (-q.1 % ↑d).toNat) * · ) at h
-    rw [mul_smul_comm, smul_mul_assoc, mul_smul_comm,
-      ← mul_assoc] at h
-    repeat rw [X_pow_add_mod_d] at h
-    rw [neg_add_cancel, Int.zero_emod, Int.toNat_zero,
-    pow_zero, one_mul, add_comm, ← sub_eq_add_neg,
-    X_pow_pos_n, Z_pow_n] at h
-    apply Matrix.ext_iff.mpr at h
-    rw [← Matrix.smul_apply] at h
+    α • (D d p.1 p.2) = β • (D d q.1 q.2) →
+    p.1 = q.1 ∧ p.2 = q.2 := by
+  unfold D
+  intro h
+  by_cases hd : d = 1
+  · subst d
     constructor
-    · specialize h 0 0
+    · exact Subsingleton.elim p.1 q.1
+    · exact Subsingleton.elim p.2 q.2
+  · have hd' :=
+      Nat.one_lt_iff_ne_zero_and_ne_one.mpr
+      ⟨NeZero.ne d, hd⟩
+    rw [← smul_mul_assoc, ← mul_smul,
+      ← smul_mul_assoc, ← mul_smul] at h
+    apply_fun (· * (Z d ^ (-p.2).val)) at h
+    rw [mul_assoc, ← pow_add, Z_pow_n_mod_d,
+      ← ZMod.val_add, ← sub_eq_add_neg, sub_self,
+      ZMod.val_zero, pow_zero, mul_one, mul_assoc,
+      ← pow_add, Z_pow_n_mod_d, ← ZMod.val_add,
+      ← sub_eq_add_neg] at h
+    apply_fun (X d ^ (-q.1).val * · ) at h
+    rw [mul_smul_comm, smul_mul_assoc, mul_smul_comm,
+      ← mul_assoc, ← pow_add, X_pow_n_mod_d,
+      ← ZMod.val_add, add_comm, ← sub_eq_add_neg,
+      ← pow_add] at h
+    nth_rewrite 2 [X_pow_n_mod_d] at h
+    rw [← ZMod.val_add, add_comm, ← sub_eq_add_neg,
+      sub_self, ZMod.val_zero, pow_zero, one_mul] at h
+    apply Matrix.ext_iff.mpr at h
+    rw [X_pow_pos_n, Z_pow_n, ZMod.natCast_val] at h
+    have h1 : p.1 = q.1 := by
+      apply_fun ( · -q.1)
+      simp
+      specialize h 0 0
       simp at h
-      by_cases h1 : (↑((p.1 - q.1) % ↑d).toNat : ZMod d) = 0
-      · have h1' : ((p.1 - q.1) % ↑d).toNat = 0 := by
-          rw [ZMod.natCast_eq_zero_iff,
-            Nat.dvd_iff_mod_eq_zero] at h1
-          have hd : d = (↑d : ℤ).toNat :=
-            Int.toNat_natCast d
-          nth_rewrite 2 [hd] at h1
-          rw [← Int.toNat_emod
-              (mod_d_nonneg d (p.1 - q.1))
-              (Int.natCast_nonneg d),
-              Int.emod_emod] at h1
-          exact h1
-        rw [Int.toNat_eq_zero] at h1'
-        rw [Int.ModEq,
-          Int.emod_eq_emod_iff_emod_sub_eq_zero]
-        exact le_antisymm h1'
-          (mod_d_nonneg d (p.1 - q.1))
-      · rw [if_neg h1, hc2] at h
-        symm at h
-        apply mul_eq_zero.mp at h
-        rcases h with hL | hR
-        · exact absurd hL (NeZero.ne β)
-        · exact absurd hR
-            (zpow_ne_zero (q.1 * q.2) (tau_ne_zero d))
-    · -- idea: for any i, we must have that omega ^ i * (q2 - p2) % d = 1
-      -- only possible if (q2 - p2) % d = 0
-      sorry
-  · sorry
+      by_contra h1'
+      rw [if_neg h1'] at h
+      symm at h
+      have h_false := mul_ne_zero
+          (NeZero.ne β) (pow_ne_zero
+          (q.1.val * q.2.val) (tau_ne_zero d))
+      contradiction
+      unfold Function.Injective
+      simp
+    constructor
+    · exact h1
+    · have hphase := h 0 0
+      rw [h1] at hphase
+      simp at hphase
+      specialize h 1 1
+      rw [h1] at h
+      simp at h
+      rw [← hphase] at h
+      rw [ZMod.val_one'' hd, one_mul] at h
+      apply_fun
+        ((α * τ d ^ (q.1.val * p.2.val))⁻¹ * · ) at h
+      rw [mul_comm] at h
+      rw [← mul_assoc] at h
+      nth_rw 7 [mul_comm] at h
+      rw [Complex.mul_inv_cancel, one_mul] at h
+      unfold ω at h
+      symm at h
+      rw [← Complex.exp_nat_mul] at h
+      apply Complex.exp_eq_one_iff.mp at h
+      obtain ⟨n, hn⟩ := h
+      apply_fun
+        (· * (2 * ↑Real.pi * Complex.I / ↑d)⁻¹) at hn
+      rw [mul_assoc, Complex.mul_inv_cancel, mul_one,
+        div_eq_mul_inv, mul_inv, inv_inv, mul_assoc,
+        ← mul_assoc ((2 * ↑Real.pi * Complex.I)),
+        Complex.mul_inv_cancel, one_mul] at hn
+      have hn_int : ((q.2 - p.2).val : ℤ) = n * d := by
+        exact_mod_cast hn
+      have h_ub : ((q.2 - p.2).val : ℤ) < d :=
+        Int.ofNat_lt.mpr (ZMod.val_lt (q.2 - p.2))
+      rw [hn_int] at h_ub
+      have h_lb : 0 ≤ ((q.2 - p.2).val : ℤ) := by
+        apply Int.natCast_nonneg
+      rw [hn_int] at h_lb
+      have hd : 0 < (↑d : ℤ) := Int.lt_of_le_of_lt h_lb h_ub
+      apply (mul_lt_iff_lt_one_left hd).mp at h_ub
+      apply Int.le_sub_one_of_lt at h_ub
+      rw [sub_self] at h_ub
+      have h_lb := Int.nonneg_of_mul_nonneg_left h_lb hd
+      have hn_zero : n = 0 := le_antisymm h_ub h_lb
+      rw [hn_zero, zero_mul] at hn_int
+      have h2 : q.2 - p.2 = 0 :=
+        (ZMod.val_eq_zero (q.2 - p.2)).mp
+        (Int.ofNat_eq_zero.mp hn_int)
+      apply_fun (· +p.2) at h2
+      rw [sub_add, sub_self, sub_zero, zero_add] at h2
+      symm
+      exact h2
+      norm_num
+      norm_num
+      exact (NeZero.ne d)
+      norm_num
+      constructor
+      exact (NeZero.ne α)
+      intro tau_zero
+      have tau_ne_zero := tau_ne_zero d
+      contradiction
 ```
 
 Displacement operators with phases that are arbitrary powers of $`τ` form a group.

@@ -172,3 +172,14 @@ lemma ZX_eq_omega_mul_XZ :
   rw [if_neg h, if_neg h]
 
 ```
+
+
+```lean "X_pow_n_mod_d"
+theorem X_pow_n_mod_d (n : ℕ): X d ^ n = X d ^ (n % ↑d) :=
+  pow_eq_pow_mod n (X_pow_d_eq_one d)
+```
+
+```lean "Z_pow_n_mod_d"
+theorem Z_pow_n_mod_d (n : ℕ): Z d ^ n = Z d ^ (n % ↑d) :=
+  pow_eq_pow_mod n (Z_pow_d_eq_one d)
+```

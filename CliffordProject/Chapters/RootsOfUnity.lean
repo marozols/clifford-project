@@ -3,6 +3,7 @@ import VersoManual
 import VersoBlueprint
 
 import Mathlib.Analysis.SpecialFunctions.Complex.Circle
+import Mathlib.RingTheory.RootsOfUnity.Complex
 
 import CliffordProject.LaTeXMacros
 import CliffordProject.Authors
@@ -51,6 +52,16 @@ def ω : ℂ :=
   Complex.exp (2 * Real.pi * Complex.I / d)
 ```
 
+:::lemma_ "omega_ne_zero" (parent := "roots_of_unity") (effort := "small") (owner := "Carli_Bruinsma")
+$`ω ≠ 0`.
+:::
+
+```lean "omega_ne_zero"
+omit [NeZero d] in
+lemma omega_ne_zero : ω d ≠ 0 := by
+  exact Complex.exp_ne_zero (2 * ↑Real.pi * Complex.I / ↑d)
+```
+
 :::lemma_ "omega_pow_d_eq_one" (parent := "roots_of_unity") (effort := "small") (owner := "Maris_Ozols")
 $`ω^d = 1`.
 :::
@@ -81,6 +92,14 @@ lemma omega_pow_k_mod_d_eq_pow_k :
     nth_rw 1 [←(Nat.mod_add_div k d)]
     rw [pow_add, pow_mul, omega_pow_d_eq_one,
       one_pow, mul_one]
+```
+
+```lean "omega_pow_n_one_then_d_dvd_n"
+lemma omega_pow_n_one_then_d_dvd_n (n : ℕ) :
+    ω d ^ n = 1 → d ∣ n := by
+  intro h
+  have hd := Complex.isPrimitiveRoot_exp d (NeZero.ne d)
+  sorry
 ```
 
 We will also need another root of unity which we call $`τ`.
@@ -192,4 +211,11 @@ lemma tau_ne_zero : τ d ≠ 0 := by
 lemma mod_d_nonneg (a : ℤ) : 0 ≤ a % ↑d := by
     apply Int.emod_nonneg
     exact Nat.cast_ne_zero.mpr (NeZero.ne d)
+```
+
+```lean "tau_pow_n_mod_d_odd"
+theorem tau_pow_n_mod_d_of_d_odd
+    (n d : ℕ) (hodd : Odd d) [NeZero d] :
+    τ d ^ n = τ d ^ (n % ↑d) :=
+  pow_eq_pow_mod n (tau_pow_d_eq_one_of_odd d hodd)
 ```
