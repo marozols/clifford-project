@@ -3,6 +3,7 @@ import VersoManual
 import VersoBlueprint
 
 import Mathlib.Analysis.SpecialFunctions.Complex.Circle
+import Mathlib.RingTheory.RootsOfUnity.Complex
 
 import CliffordProject.LaTeXMacros
 import CliffordProject.Authors
@@ -51,6 +52,16 @@ def ω : ℂ :=
   Complex.exp (2 * Real.pi * Complex.I / d)
 ```
 
+:::lemma_ "omega_ne_zero" (parent := "roots_of_unity") (effort := "small") (owner := "Carli_Bruinsma")
+$`ω ≠ 0`.
+:::
+
+```lean "omega_ne_zero"
+omit [NeZero d] in
+lemma omega_ne_zero : ω d ≠ 0 := by
+  exact Complex.exp_ne_zero (2 * ↑Real.pi * Complex.I / ↑d)
+```
+
 :::lemma_ "omega_pow_d_eq_one" (parent := "roots_of_unity") (effort := "small") (owner := "Maris_Ozols")
 $`ω^d = 1`.
 :::
@@ -93,15 +104,15 @@ lemma order_omega : orderOf (ω d) = d := by
 
 This is an additional corrolary that is nice to have.
 
-:::lemma_ "omega_pow_k_mod_d_eq_pow_k" (parent := "roots_of_unity") (effort := "small") (owner := "Gina_Muuss")
-$`ω^{k \% d} = ω^k`.
+:::lemma_ "omega_pow_n_mod_d" (parent := "roots_of_unity") (effort := "small") (owner := "Gina_Muuss")
+$`ω^n = ω^{n \% d}`.
 :::
 
-```lean "omega_pow_k_mod_d_eq_pow_k"
-lemma omega_pow_k_mod_d_eq_pow_k :
-  ∀ k : Nat, (ω d) ^ k = (ω d) ^ (k % d) := by
-    intro k
-    nth_rw 1 [←(Nat.mod_add_div k d)]
+```lean "omega_pow_n_mod_d"
+lemma omega_pow_n_mod_d :
+  ∀ n : Nat, (ω d) ^ n = (ω d) ^ (n % d) := by
+    intro n
+    nth_rw 1 [←(Nat.mod_add_div n d)]
     rw [pow_add, pow_mul, omega_pow_d_eq_one,
       one_pow, mul_one]
 ```
@@ -240,4 +251,14 @@ lemma tau_ne_zero : τ d ≠ 0 := by
 lemma mod_d_nonneg (a : ℤ) : 0 ≤ a % ↑d := by
     apply Int.emod_nonneg
     exact Nat.cast_ne_zero.mpr (NeZero.ne d)
+```
+:::lemma_ "tau_pow_n_mod_d_odd" (parent := "roots_of_unity") (effort := "small") (owner := "Carli_Bruinsma")
+If $`d` is odd then $`τ^{n} = τ^{n \% d}`.
+:::
+
+```lean "tau_pow_n_mod_d_odd"
+theorem tau_pow_n_mod_d_of_d_odd
+    (n d : ℕ) (hodd : Odd d) [NeZero d] :
+    τ d ^ n = τ d ^ (n % ↑d) :=
+  pow_eq_pow_mod n (tau_pow_d_eq_one_of_odd d hodd)
 ```
