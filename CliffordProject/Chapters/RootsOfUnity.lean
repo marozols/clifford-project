@@ -262,3 +262,23 @@ theorem tau_pow_n_mod_d_of_d_odd
     τ d ^ n = τ d ^ (n % ↑d) :=
   pow_eq_pow_mod n (tau_pow_d_eq_one_of_odd d hodd)
 ```
+
+
+```lean "tau_star"
+theorem tau_star
+    (d : ℕ) (n : ℤ) [NeZero d] :
+    star (τ d ^ n)  = τ d^(-n) := by
+  unfold τ
+  rw [star_zpow₀, star_neg, RCLike.star_def, ← Complex.exp_conj]
+  simp only [map_div₀, map_mul, Complex.conj_ofReal, Complex.conj_I, mul_neg, map_natCast, neg_inj]
+  by_cases h : Even n
+  . rw [h.neg_zpow,  (even_neg.2 h).neg_zpow]
+    rw [← Complex.exp_int_mul, ← Complex.exp_int_mul]
+    rw [Int.cast_neg]
+    ring_nf
+  apply Int.not_even_iff_odd.1 at h
+  rw [h.neg_zpow, (odd_neg.2 h).neg_zpow]
+  rw [← Complex.exp_int_mul, ← Complex.exp_int_mul]
+  rw [Int.cast_neg]
+  ring_nf
+```

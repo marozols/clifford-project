@@ -222,6 +222,21 @@ lemma Z_pow_X_pow_eq_omega_mul_X_pow_Z_pow (k : ℕ) (ℓ : ℕ) :
       | succ k ih2 =>-/
 ```
 
+And also backwards
+
+```lean "X_pow_Z_pow_eq_omega_mul_Z_pow_X_pow"
+lemma X_pow_Z_pow_eq_omega_mul_Z_pow_X_pow (k : ZMod d) (l : ZMod d) :
+  (X d) ^ k.val * (Z d) ^ l.val = (ω d) ^ (-(k * l)).val •
+  ((Z d) ^ l.val * (X d) ^ k.val) := by
+  rw [(Z_pow_X_pow_eq_omega_mul_X_pow_Z_pow d l.val k.val)]
+  simp [smul_smul]
+  nth_rw 2 [omega_pow_n_mod_d]
+  rw [← ZMod.val_mul, ← pow_add]
+  rw [omega_pow_n_mod_d, ← ZMod.val_add]
+  rw [mul_comm, neg_add_cancel, ZMod.val_zero]
+  rw [pow_zero, one_smul]
+```
+
 :::lemma_ "X_pow_n_mod_d and Z_pow_n_mod_d" (parent := "Pauli_core") (owner := "Carli_Bruinsma")
 Powers of Pauli $`X` and $`Z` satisfy
 $$`X^n = X^{n \% d}`
