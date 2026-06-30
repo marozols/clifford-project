@@ -82,7 +82,7 @@ lemma omega_pow_d_eq_one : (ω d)^d = 1 := by
 This is an additional corrolary that is nice to have.
 
 :::lemma_ "omega_pow_n_mod_d" (parent := "roots_of_unity") (effort := "small") (owner := "Gina_Muuss")
-$`ω^n = ω^{n \% d}`.
+$`ω^n = ω^{n \mod d}`.
 :::
 
 ```lean "omega_pow_n_mod_d"
@@ -205,7 +205,7 @@ lemma mod_d_nonneg (a : ℤ) : 0 ≤ a % ↑d := by
     exact Nat.cast_ne_zero.mpr (NeZero.ne d)
 ```
 :::lemma_ "tau_pow_n_mod_d_odd" (parent := "roots_of_unity") (effort := "small") (owner := "Carli_Bruinsma")
-If $`d` is odd then $`τ^{n} = τ^{n \% d}`.
+If $`d` is odd then $`τ^{n} = τ^{n \mod d}`.
 :::
 
 ```lean "tau_pow_n_mod_d_odd"

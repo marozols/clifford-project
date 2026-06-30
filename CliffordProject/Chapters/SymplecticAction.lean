@@ -3,10 +3,21 @@ import VersoManual
 import VersoBlueprint
 
 import Mathlib.Analysis.SpecialFunctions.Complex.Circle
+import Mathlib.LinearAlgebra.SymplecticGroup    -- symplecticGroup, J
+import Mathlib.LinearAlgebra.UnitaryGroup       -- Matrix.unitaryGroup
+import Mathlib.Data.Matrix.Basic                -- Matrix, transpose, mul
+import Mathlib.Data.ZMod.Basic                  -- ZMod d
+import Mathlib.Data.Complex.Basic               -- ℂ
+import Mathlib.Data.Set.Operations
 
 import CliffordProject.LaTeXMacros
 import CliffordProject.Authors
 import CliffordProject.Bibliography
+import CliffordProject.Chapters.RootsOfUnity
+import CliffordProject.Chapters.Pauli
+import CliffordProject.Chapters.SymplecticForm
+import CliffordProject.Chapters.Displacement
+import CliffordProject.Chapters.Clifford
 
 open Verso.Genre
 open Verso.Genre.Manual hiding citep citet citehere
@@ -25,7 +36,7 @@ The result shows that under conjugation any Clifford group element $`U ∈ \Clif
 Here we are dealing with only one quantum system $`ℂ^d`, but for $`n` systems the matrix $`F` would be symplectic: $`F ∈ \Sp(2n,ℤ_d)`.
 Note that for $`n = 1` we have $`\SL(2,ℤ_d) = \Sp(2,ℤ_d)`.
 
-:::theorem "clifford_symplectic_action" (parent := "symplectic_action") (effort := "large")
+:::theorem "clifford_symplectic_action" (parent := "symplectic_action") (effort := "large") (owner := "Carli_Bruinsma")
 Let $`d` be an odd prime.
 Then for each unitary $`U \in \Cliff(d)` there exists a matrix
 $`F \in \SL(2,ℤ_d)` and a vector
@@ -92,3 +103,36 @@ Setting $`\bchi = F\bchi'` and using {uses "symp_adjoint"}[], we conclude that
 $$`U D_{\p} U^\dagger = \omega^{\langle\bchi, F\p\rangle} D_{F\p}`
 for all $`\p \in \mathbb{Z}^2`.
 :::
+
+```lean "clifford_symplectic_action"
+variable (d : ℕ) [NeZero d]
+open Matrix in
+theorem clifford_symplectic_action
+    (hodd: Odd d)
+    (U : cliffordGroup d) :
+    ∃ F : Matrix.symplecticGroup (Fin 1) (ZMod d),
+    ∃ χ : ZMod d × ZMod d,
+    ∀ p : Fin 1 ⊕ Fin 1 → ZMod d,
+    U.val.val * (D d (p (Sum.inl 0)) (p (Sum.inl 1)))
+      * U.val.val.conjTranspose =
+    ω d ^ (symp χ ⟨((F.val *ᵥ p) (Sum.inl 0)),
+        ((F.val *ᵥ p) (Sum.inl 1))⟩).val •
+      D d ((F.val *ᵥ p) (Sum.inl 0))
+        ((F.val *ᵥ p) (Sum.inl 1))
+    := by
+  obtain ⟨U, hU⟩ := U
+  have h := cliffordGroupAction d U hU
+  specialize h ⟨0, 0⟩
+  obtain ⟨f, g, hU⟩ := h
+  -- f is additive modulo d
+  have hf (p q : ZMod d × ZMod d) :
+      (f (p + q)).1 = (f p).1 + (f q).1 ∧
+      (f (p + q)).2 = (f p).2 + (f q).2 := by
+    sorry
+  -- f is equal to some linear map F' + d times some map h
+  -- drop the second term when taking displacement operator of f in new form
+  sorry
+
+
+
+```

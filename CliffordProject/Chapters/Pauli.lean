@@ -223,8 +223,8 @@ lemma Z_pow_X_pow_eq_omega_mul_X_pow_Z_pow (k : ℕ) (ℓ : ℕ) :
 
 :::lemma_ "X_pow_n_mod_d and Z_pow_n_mod_d" (parent := "Pauli_core") (owner := "Carli_Bruinsma")
 Powers of Pauli $`X` and $`Z` satisfy
-$$`X^n = X^{n \% d}`
-$$`Z^n = Z^{n \% d}`
+$$`X^n = X^{n \mod d}`
+$$`Z^n = Z^{n \mod d}`
 :::
 
 ```lean "X_pow_n_mod_d and Z_pow_n_mod_d"
