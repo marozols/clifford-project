@@ -59,9 +59,71 @@ where $`\dagger` denotes the conjugate transpose.
 :::
 
 ```lean "D_conj"
-lemma conjTranspose_D (x z : ZMod d) :
-    (D d x z).conjTranspose = D d (-x) (-z) :=
+lemma conjTranspose_D (x z : ℤ) :
+    (D d x z).conjTranspose = D d (-x) (-z) := by
+  unfold D
+  rw [smul_mul_assoc]
+  rw [(X_pow_Z_pow_eq_omega_mul_Z_pow_X_pow d x z)]
+  simp only [Matrix.conjTranspose_mul, Matrix.conjTranspose_smul]
+  rw [X_inv_pow, Z_inv_pow]
+  rw [smul_mul_assoc]
+  #check (tau_star d (((x: ZMod d).val) * ((z: ZMod d).val)))
+  #check zpow_natCast
+  rw [← tau_sq_eq_omega]
+  nth_rw 2 [star_pow]
+  nth_rw 2 [pow_mul]
+  have tau_star_nat
+    (d : ℕ) (n : ℕ) [NeZero d] :
+    star (τ d ^ n) = τ d^(-(n: ℤ)) := by
+      have h := tau_star d (n : ℤ)
+      rw [zpow_natCast] at h
+      exact h
+  rw [tau_star_nat, tau_star_nat]
+  rw [← smul_assoc]
+  -- This is a insane bodge, but this way lean can do the casts...
+  have hh (z : ℂ ) (a: ℤ ) (b: ℕ ): z ^(a*b) = (z^a)^b  :=by
+    exact zpow_mul z a b
+  rw [← (hh (τ d) (-(2 : ℕ)) (-((x: ZMod d) * (z: ZMod d))).val)]
+  rw [smul_eq_mul]
+  rw [← pow_mul]
+  congr
+  nth_rw 3 [mul_comm]
+  rw [Int.mul_neg, ← Nat.cast_mul]
+  rw [← (zpow_add₀ (tau_ne_zero d))]
+  #check ZMod.val_mul
+  unfold τ
   sorry
+  /-
+  --rw [Matrix.conjTranspose_apply]
+  --unfold Matrix.conjTranspose_mul
+
+  --rw [Matrix.conjTranspose_mul]
+
+  simp only [star_pow, star_neg, RCLike.star_def]
+  --unfold τ
+
+  --rw [starRingEnd_apply]
+  #check starRingEnd
+  #check star_pow
+  #check star_neg
+  --rw[star_neg]
+  --simp only [RCLike.star_def]
+  --simp only [RCLike.star_def, even_two, Even.neg_pow]
+  rw[ ← Complex.exp_conj]
+  #check neg_pow
+  simp only [map_div₀, map_mul, Complex.conj_ofReal, Complex.conj_I, mul_neg, map_natCast]
+  rw [neg_pow]
+  rw [(neg_pow (Complex.exp (↑Real.pi * Complex.I / ↑d))
+    ((-(x : ZMod d)).val * (-(z : ZMod d)).val))] -- Somehow here we have to specify....
+  rw [← Complex.exp_nat_mul]
+  rw [← Complex.exp_nat_mul]
+  rw [ZMod.val_mul]
+  #check neg_one_pow_congr
+
+  --rw [← Complex.exp_nsmul,← Complex.exp_int_mul, ← Complex.exp_neg]
+  #check neg_mul
+--  rw [neg_smul, ← Complex.exp_int_mul,  ← Complex.exp_add]
+-/
 ```
 
 Multiplication of displacement operators corresponds to adding their subscripts and introducing a phase given by the symplectic inner product, see Eq. (10) in {citet Appleby}[].

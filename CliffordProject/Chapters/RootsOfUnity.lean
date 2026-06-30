@@ -79,6 +79,29 @@ lemma omega_pow_d_eq_one : (ω d)^d = 1 := by
   · exact d_invertible d
 ```
 
+```lean "order_omega"
+lemma order_omega : orderOf (ω d) = d := by
+  refine orderOf_eq_of_pow_and_pow_div_prime ?_ ?_ ?_
+  exact Nat.pos_of_neZero d
+  exact omega_pow_d_eq_one d
+  intro p hp hpdivd
+  unfold ω
+  rw [← Complex.exp_nat_mul]
+  rw [(Nat.cast_div hpdivd (Nat.cast_ne_zero.2 (Nat.Prime.ne_zero hp)))]
+  rw [div_mul_div_comm]
+  nth_rw 4 [mul_comm]
+  rw [← div_mul_div_comm]
+  --#check div_self (Nat.cast_ne_zero.2 (NeZero.ne d))
+  --rw [div_self, one_mul]
+  rw [← (Nat.cast_div (dvd_refl d) (Nat.cast_ne_zero.2 (NeZero.ne d)))]
+  simp only [dvd_refl, Nat.cast_div_charZero, div_self_of_invertible, one_mul, ne_eq]
+  rw [← mul_one (2*Real.pi*Complex.I)]
+  nth_rw 1 [← (Nat.cast_one (R:= ℂ )) ]
+  by_contra hfalse
+  exact ((Nat.Prime.not_dvd_one hp) (((Complex.exp_two_pi_mul_I_mul_div_eq_one_iff (Nat.Prime.ne_zero hp)).1 ) hfalse))
+
+```
+
 This is an additional corrolary that is nice to have.
 
 :::lemma_ "omega_pow_n_mod_d" (parent := "roots_of_unity") (effort := "small") (owner := "Gina_Muuss")
@@ -93,6 +116,31 @@ lemma omega_pow_n_mod_d :
     rw [pow_add, pow_mul, omega_pow_d_eq_one,
       one_pow, mul_one]
 ```
+
+```lean "omega_pow_k_mod_d_eq_pow_k_int"
+lemma omega_pow_k_mod_d_eq_pow_k_int :
+  ∀ k : Int, (ω d) ^ k = (ω d) ^ (k % d) := by
+    intro k
+    nth_rw 1 [← (Int.emod_add_ediv_mul k d)]
+    rw [zpow_add']
+    nth_rw 2 [mul_comm]
+    rw [zpow_mul]
+    rw [zpow_natCast]
+    rw [omega_pow_d_eq_one, one_zpow, mul_one]
+    apply Or.inl
+    unfold ω
+    apply Complex.exp_ne_zero
+```
+
+```lean "omega_pow_k_mod_d_eq_pow_k_zmod"
+lemma omega_pow_k_mod_d_eq_pow_k_zmod :
+  ∀ k : Int, (ω d) ^ k = (ω d) ^ (k : ZMod d).val := by
+    intro k
+    rw [omega_pow_k_mod_d_eq_pow_k_int]
+    rw [(Eq.symm (ZMod.val_intCast k))]
+    exact zpow_natCast (ω d) (k : ZMod d).val
+```
+
 
 We will also need another root of unity which we call $`τ`.
 
@@ -213,4 +261,24 @@ theorem tau_pow_n_mod_d_of_d_odd
     (n d : ℕ) (hodd : Odd d) [NeZero d] :
     τ d ^ n = τ d ^ (n % ↑d) :=
   pow_eq_pow_mod n (tau_pow_d_eq_one_of_odd d hodd)
+```
+
+
+```lean "tau_star"
+theorem tau_star
+    (d : ℕ) (n : ℤ) [NeZero d] :
+    star (τ d ^ n)  = τ d^(-n) := by
+  unfold τ
+  rw [star_zpow₀, star_neg, RCLike.star_def, ← Complex.exp_conj]
+  simp only [map_div₀, map_mul, Complex.conj_ofReal, Complex.conj_I, mul_neg, map_natCast, neg_inj]
+  by_cases h : Even n
+  . rw [h.neg_zpow,  (even_neg.2 h).neg_zpow]
+    rw [← Complex.exp_int_mul, ← Complex.exp_int_mul]
+    rw [Int.cast_neg]
+    ring_nf
+  apply Int.not_even_iff_odd.1 at h
+  rw [h.neg_zpow, (odd_neg.2 h).neg_zpow]
+  rw [← Complex.exp_int_mul, ← Complex.exp_int_mul]
+  rw [Int.cast_neg]
+  ring_nf
 ```

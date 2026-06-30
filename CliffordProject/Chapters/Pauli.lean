@@ -173,6 +173,7 @@ lemma ZX_eq_omega_mul_XZ :
 
 ```
 
+
 And so do their powers.
 
 :::lemma_ "Z_pow_X_pow_eq_omega_mul_X_pow_Z_pow" (parent := "Pauli_core") (owner := "Daan_Planken")
@@ -221,6 +222,21 @@ lemma Z_pow_X_pow_eq_omega_mul_X_pow_Z_pow (k : ℕ) (ℓ : ℕ) :
       | succ k ih2 =>-/
 ```
 
+And also backwards
+
+```lean "X_pow_Z_pow_eq_omega_mul_Z_pow_X_pow"
+lemma X_pow_Z_pow_eq_omega_mul_Z_pow_X_pow (k : ZMod d) (l : ZMod d) :
+  (X d) ^ k.val * (Z d) ^ l.val = (ω d) ^ (-(k * l)).val •
+  ((Z d) ^ l.val * (X d) ^ k.val) := by
+  rw [(Z_pow_X_pow_eq_omega_mul_X_pow_Z_pow d l.val k.val)]
+  simp [smul_smul]
+  nth_rw 2 [omega_pow_n_mod_d]
+  rw [← ZMod.val_mul, ← pow_add]
+  rw [omega_pow_n_mod_d, ← ZMod.val_add]
+  rw [mul_comm, neg_add_cancel, ZMod.val_zero]
+  rw [pow_zero, one_smul]
+```
+
 :::lemma_ "X_pow_n_mod_d and Z_pow_n_mod_d" (parent := "Pauli_core") (owner := "Carli_Bruinsma")
 Powers of Pauli $`X` and $`Z` satisfy
 $$`X^n = X^{n \mod d}`
@@ -233,4 +249,127 @@ theorem X_pow_n_mod_d (n : ℕ): X d ^ n = X d ^ (n % ↑d) :=
 
 theorem Z_pow_n_mod_d (n : ℕ): Z d ^ n = Z d ^ (n % ↑d) :=
   pow_eq_pow_mod n (Z_pow_d_eq_one d)
+```
+
+
+:::lemma_ "X_dagger" (parent := "Pauli_core") (owner := "Gina_Muuss")
+$$`X^{†} = X^(-1).`
+:::
+
+
+```lean "X_dagger"
+lemma X_inv : (X d).conjTranspose  =
+(X d)^((-1 : ZMod d).val) := by
+  ext i j
+  rw [X_pow_pos_n]
+  rw [Matrix.conjTranspose_apply]
+  unfold X
+  simp
+  have hfalso: (k: ZMod d) →
+    k + 1 + ↑((-1 : ℤ) % d).toNat = k := by
+      intro k
+      have h3 : 0 ≤ ((-1 : ℤ) % d) := by
+        apply Int.emod_nonneg
+        apply (Int.natCast_ne_zero.2 (NeZero.ne d))
+      rw [ZMod.natCast_toNat d h3]
+      simp only [Int.reduceNeg, ZMod.intCast_mod,
+      Int.cast_neg, Int.cast_one, add_neg_cancel_right]
+  split_ifs with h1 h2 h2; rfl
+  . exfalso
+    rw [← h1] at h2
+    simp only [add_neg_cancel_right,
+      not_true_eq_false] at h2
+  . exfalso
+    rw [← h2, add_assoc] at h1
+    nth_rw 2 [add_comm] at h1
+    rw [← add_assoc] at h1
+    simp only [add_neg_cancel_right,
+      not_true_eq_false] at h1
+  . rfl
+
+```
+
+```lean "X_pow_eq_mod_d"
+lemma X_pow_eq_mod_d :  (x: ℕ) → (y: ℕ) →
+  (x % d = y % d → X d ^ x = X d ^ y ) := by
+    intro x y h
+    rw [← Nat.div_add_mod x d ]
+    rw [← Nat.div_add_mod y d ]
+    rw [pow_add, pow_add, pow_mul, pow_mul]
+    rw [X_pow_d_eq_one]
+    simp only [one_pow, one_mul]
+    congr
+```
+
+```lean "X_inv_pow"
+lemma X_inv_pow : (x: ZMod d) →
+  ((X d)^(x.val)).conjTranspose  =
+  (X d)^((-x).val):= by
+  intro x
+  rw [Matrix.conjTranspose_pow, X_inv, ← pow_mul]
+  apply X_pow_eq_mod_d
+  rw [← ZMod.val_mul, neg_mul, one_mul]
+  rw [(Nat.mod_eq_of_lt (ZMod.val_lt (-x)))]
+```
+
+
+```lean "Z_inv"
+lemma Z_inv : (Z d).conjTranspose  =
+(Z d)^((-1 : ZMod d).val) := by
+  ext i j
+  rw [Matrix.conjTranspose_apply]
+  have hdiag : (Z d) =
+    Matrix.diagonal (fun i => ω d ^ i.val) := rfl
+  rw [hdiag, Matrix.diagonal_pow,
+    Matrix.diagonal_apply,
+    Matrix.diagonal_apply]
+  simp only [RCLike.star_def, Pi.pow_apply]
+  split_ifs with h1 h2 h2
+  . rw [h1]
+    simp
+    rw [← pow_mul, mul_comm, pow_mul]
+    have homega :
+      (starRingEnd ℂ ) (ω d) = ω d ^ (-1 : ℤ) := by
+      unfold ω
+      rw [← Complex.exp_conj, ← Complex.exp_int_mul]
+      rw [starRingEnd_apply]
+      simp
+      rw [neg_div]
+    rw [homega, omega_pow_k_mod_d_eq_pow_k_zmod]
+    congr
+    simp only [Int.reduceNeg, Int.cast_neg, Int.cast_one]
+  . exfalso
+    exact (h2 h1.symm)
+  . exfalso
+    exact (h1 h2.symm)
+  simp only [map_zero]
+```
+
+
+```lean "Z_pow_eq_mod_d"
+lemma Z_pow_eq_mod_d :  (x: ℕ) → (y: ℕ) →
+  (x % d = y % d → Z d ^ x = Z d ^ y ) := by
+  -- This is exactly the same proof as for X,
+  -- maybe we can consolidate
+    intro x y h
+    rw [← Nat.div_add_mod x d ]
+    rw [← Nat.div_add_mod y d ]
+    rw [pow_add, pow_add, pow_mul, pow_mul]
+    rw [Z_pow_d_eq_one]
+    simp only [one_pow, one_mul]
+    congr
+```
+
+
+```lean "Z_inv_pow"
+lemma Z_inv_pow : (x: ZMod d) →
+  ((Z d)^(x.val)).conjTranspose  =
+  (Z d)^((-x).val):= by
+  -- This is exactly the same proof as for X,
+  -- maybe we can consolidate
+  intro x
+  rw [Matrix.conjTranspose_pow, Z_inv, ← pow_mul]
+  apply Z_pow_eq_mod_d
+  rw [← ZMod.val_mul, neg_mul, one_mul]
+  rw [(Nat.mod_eq_of_lt (ZMod.val_lt (-x)))]
 ```
