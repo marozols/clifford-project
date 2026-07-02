@@ -239,6 +239,32 @@ lemma X_pow_Z_pow_eq_omega_mul_Z_pow_X_pow (k : ZMod d) (l : ZMod d) :
   rw [pow_zero, one_smul]
 ```
 
+```lean "X_pow_Z_pow_eq_omega_mul_Z_pow_X_pow_int"
+lemma X_pow_Z_pow_eq_omega_mul_Z_pow_X_pow_int (k : ℤ) (l : ℤ) :
+  (X d) ^ (l : ZMod d).val * (Z d) ^ (k : ZMod d).val =
+  (ω d) ^ (-(k * l)) •
+  ((Z d) ^ (k : ZMod d).val * (X d) ^ (l : ZMod d).val) := by
+  rw [(Z_pow_X_pow_eq_omega_mul_X_pow_Z_pow d (k : ZMod d) (l : ZMod d) )]
+  rw [smul_smul, ← zpow_natCast]
+  nth_rw 1 [omega_pow_k_mod_d_eq_pow_k_zmod]
+  rw [← zpow_natCast]
+  rw [ ← (zpow_add₀ (omega_ne_zero d))]
+  rw [← Nat.cast_add]
+  rw [omega_pow_k_mod_d_eq_pow_k_int]
+  rw [← Int.natCast_emod]
+  rw [Nat.add_mod]
+  rw [← ZMod.val_mul]
+  simp only [Int.cast_neg, Int.cast_mul, Nat.mod_add_mod, Int.natCast_emod, Nat.cast_add]
+  rw [← Nat.cast_add]
+  rw [← omega_pow_k_mod_d_eq_pow_k_int]
+  rw [zpow_natCast]
+  rw [omega_pow_n_mod_d]
+
+  rw [← ZMod.val_add]
+  simp only [neg_add_cancel, ZMod.val_zero, pow_zero, one_smul]
+
+```
+
 :::lemma_ "X_pow_n_mod_d and Z_pow_n_mod_d" (parent := "Pauli_core") (owner := "Carli_Bruinsma")
 Powers of Pauli $`X` and $`Z` satisfy
 $$`X^n = X^{n \mod d}`
