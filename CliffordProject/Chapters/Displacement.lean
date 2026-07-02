@@ -139,7 +139,26 @@ lemma D_mul (p q : ZMod d × ZMod d) :
     (D d p.1 p.2) * (D d q.1 q.2) =
     τ d ^ (symp p q).val •
     D d (p.1 + q.1) (p.2 + q.2) := by
-  sorry
+      unfold D
+      simp
+
+      nth_rewrite 1 [← mul_assoc]
+      nth_rewrite 2 [mul_assoc]
+
+      rw [Z_pow_X_pow_eq_omega_mul_X_pow_Z_pow]
+      simp
+      rw [← mul_assoc]
+      ring
+      rw [← pow_add]
+      have h2 : τ d ^ (q.1 * q.2) • τ d ^ (p.1 * p.2) • ω d ^ ((p.2 % ↑d).toNat * (q.1 % ↑d).toNat) • (X d ^ ((p.1 % ↑d).toNat + (q.1 % ↑d).toNat) * Z d ^ (p.2 % ↑d).toNat * Z d ^ (q.2 % ↑d).toNat) = (τ d ^ (q.1 * q.2) • τ d ^ (p.1 * p.2)) • ω d ^ ((p.2 % ↑d).toNat * (q.1 % ↑d).toNat) • (X d ^ ((p.1 % ↑d).toNat + (q.1 % ↑d).toNat) * (Z d ^ (p.2 % ↑d).toNat * Z d ^ (q.2 % ↑d).toNat)) := by
+        ring
+        apply?
+      rw [h2]
+      rw [← pow_add]
+      ---have h4 : τ d ^ (q.1 * q.2) • τ d ^ (p.1 * p.2) • ω d ^ ((p.2 % ↑d).toNat * (q.1 % ↑d).toNat) • (X d ^ ((q.1 % ↑d).toNat + (p.1 % ↑d).toNat) * Z d ^ (p.2 % ↑d).toNat * Z d ^ (q.2 % ↑d).toNat) = τ d ^ (q.1 * q.2) • τ d ^ (p.1 * p.2) • ω d ^ ((p.2 % ↑d).toNat * (q.1 % ↑d).toNat) • (X d ^ ((q.1 % ↑d).toNat + (p.1 % ↑d).toNat) * Z d ^ (p.2 % ↑d).toNat * Z d ^ (q.2 % ↑d).toNat) := by
+      have h4 : τ d ^ (q.1 * q.2) • τ d ^ (p.1 * p.2) • ω d ^ ((p.2 % ↑d).toNat * (q.1 % ↑d).toNat) • (X d ^ ((q.1 % ↑d).toNat + (p.1 % ↑d).toNat) * Z d ^ (p.2 % ↑d).toNat * Z d ^ (q.2 % ↑d).toNat) = (τ d ^ (q.1 * q.2) * τ d ^ (p.1 * p.2) * ω d ^ ((p.2 % ↑d).toNat * (q.1 % ↑d).toNat)) • (X d ^ ((q.1 % ↑d).toNat + (p.1 % ↑d).toNat) * Z d ^ (p.2 % ↑d).toNat * Z d ^ (q.2 % ↑d).toNat) := by
+        ring
+        sorry
 
 
 ```

@@ -182,20 +182,35 @@ $$`Z^k X^ℓ = ω^{k·ℓ} X^ℓ Z^k.`
 :::
 
 ```lean "Z_pow_X_pow_eq_omega_mul_X_pow_Z_pow"
-lemma Z_pow_X_pow_eq_omega_mul_X_pow_Z_pow (k : ℕ) (ℓ : ℕ) :
-  (Z d) ^ k * (X d) ^ ℓ = (ω d) ^ (k * ℓ) •
-  ((X d) ^ ℓ * (Z d) ^ k) := by
-    induction ℓ with
+lemma Z_pow_X_pow_eq_omega_mul_X_pow_Z_pow (k : ZMod d) (ℓ : ZMod d) :
+  (Z d) ^ k.val * (X d) ^ ℓ.val = (ω d) ^ (k.val * ℓ.val) •
+  ((X d) ^ ℓ.val * (Z d) ^ k.val) := by
+    induction ℓ.val with
     | zero => simp
     | succ ℓ ih =>
       nth_rw 1 [pow_succ']
       nth_rw 1 [← mul_assoc]
-      have h : Z d ^ k * X d * X d ^ ℓ =
-          ω d ^ k • X d * Z d ^ k * X d ^ ℓ := by
-        sorry
+      have h (m : ℕ) (n : ℕ) : Z d ^ m * X d * X d ^ n =  ω d ^ m • X d * Z d ^ m * X d ^ n := by
+        induction m with
+        | zero => simp
+        | succ m ih2 =>
+          nth_rw 1 [pow_succ']
+          nth_rw 1 [mul_assoc]
+          nth_rw 1 [mul_assoc]
+          nth_rw 2 [← mul_assoc]
+          rw [ih2]
+          simp
+          nth_rw 1 [← mul_assoc]
+          nth_rw 1 [← mul_assoc]
+          rw [ZX_eq_omega_mul_XZ]
+          simp
+          nth_rw 2 [mul_assoc]
+          rw [← pow_succ']
+          rw [smul_smul]
+          rw [← pow_succ]
+
       rw [h]
       nth_rw 1 [mul_assoc]
-      --nth_rw 1 [mul_comm]
       rw [Matrix.smul_mul]
       rw [← Matrix.mul_smul]
       rw [ih]
@@ -207,19 +222,6 @@ lemma Z_pow_X_pow_eq_omega_mul_X_pow_Z_pow (k : ℕ) (ℓ : ℕ) :
       rw [← pow_succ']
       rw [add_comm]
 
-      --#check Matrix.mul_smul
-      /-rw [smul_mul_assoc]
-      rw [ih]
-      rw [smul_smul]
-      rw [← pow_add]
-      rw [add_comm]
-      rw [← mul_add_one]
-
-      induction k with
-      | zero =>
-        simp
-        rw [pow_succ']
-      | succ k ih2 =>-/
 ```
 
 And also backwards
@@ -228,7 +230,7 @@ And also backwards
 lemma X_pow_Z_pow_eq_omega_mul_Z_pow_X_pow (k : ZMod d) (l : ZMod d) :
   (X d) ^ k.val * (Z d) ^ l.val = (ω d) ^ (-(k * l)).val •
   ((Z d) ^ l.val * (X d) ^ k.val) := by
-  rw [(Z_pow_X_pow_eq_omega_mul_X_pow_Z_pow d l.val k.val)]
+  rw [(Z_pow_X_pow_eq_omega_mul_X_pow_Z_pow d l k)]
   simp [smul_smul]
   nth_rw 2 [omega_pow_n_mod_d]
   rw [← ZMod.val_mul, ← pow_add]
