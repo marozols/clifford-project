@@ -59,7 +59,7 @@ where $`\dagger` denotes the conjugate transpose.
 :::
 
 ```lean "D_conj"
-lemma conjTranspose_D (x z : ℤ) :
+lemma conjTranspose_D (x z : ZMod d) :
     (D d x z).conjTranspose = D d (-x) (-z) := by
   unfold D
   rw [smul_mul_assoc]
@@ -69,8 +69,9 @@ lemma conjTranspose_D (x z : ℤ) :
   rw [smul_mul_assoc]
   #check (tau_star d (((x: ZMod d).val) * ((z: ZMod d).val)))
   #check zpow_natCast
+  --rw [(omega_pow_n_mod_d d)]
   rw [← tau_sq_eq_omega]
-  nth_rw 2 [star_pow]
+  --nth_rw 1 [star_zpow₀]
   nth_rw 2 [pow_mul]
   have tau_star_nat
     (d : ℕ) (n : ℕ) [NeZero d] :
@@ -78,19 +79,54 @@ lemma conjTranspose_D (x z : ℤ) :
       have h := tau_star d (n : ℤ)
       rw [zpow_natCast] at h
       exact h
-  rw [tau_star_nat, tau_star_nat]
-  rw [← smul_assoc]
+  rw [tau_star_nat]
+  rw [star_pow]
+  rw [tau_star_nat]
+  rw [← smul_assoc, smul_eq_mul]
+  congr
+
   -- This is a insane bodge, but this way lean can do the casts...
   have hh (z : ℂ ) (a: ℤ ) (b: ℕ ): z ^(a*b) = (z^a)^b  :=by
     exact zpow_mul z a b
   rw [← (hh (τ d) (-(2 : ℕ)) (-((x: ZMod d) * (z: ZMod d))).val)]
-  rw [smul_eq_mul]
+  rw [← (zpow_add₀ (tau_ne_zero d))]
   rw [← pow_mul]
-  congr
+  rw [neg_mul, ← Nat.cast_mul, two_mul]
+  rw [← Int.neg_add]
+  rw [← Nat.cast_add]
+  #check ZMod.val_neg_of_ne_zero
+  by_cases h : NeZero (x * z)
+  rw [ZMod.val_neg_of_ne_zero]
+
+  #check ZMod.val_mul
+
+  simp only [neg_mul, mul_neg, neg_neg]
+  rw [← smul_assoc]
+
+  #check zpow_add₀ (tau_ne_zero d)
+
   nth_rw 3 [mul_comm]
+
   rw [Int.mul_neg, ← Nat.cast_mul]
   rw [← (zpow_add₀ (tau_ne_zero d))]
-  #check ZMod.val_mul
+  #check mul_two
+  #check Nat.cast_mul
+  rw [Nat.cast_mul, mul_two]
+  simp only [ZMod.natCast_val, Nat.cast_add, neg_add_rev]
+  rw [ZMod.cast_neg, ZMod.cast_mul]
+  simp only [neg_neg, neg_add_cancel_left]
+  rw [ZMod.neg_val, ZMod.neg_val]
+  split_ifs with h1 h2 h2;
+  . rw[h1, h2, ZMod.cast_zero]
+    rfl
+  . rw [h1, ZMod.cast_zero, zero_mul, zero_mul]
+    rfl
+  . rw [h2, ZMod.cast_zero, mul_zero, mul_zero]
+    rfl
+  rw [Nat.sub_mul, Nat.mul_sub, Nat.mul_sub]
+  rw [ZMod.cast_eq_val, ZMod.cast_eq_val]
+  #check ZMod.cast_eq_val
+  congr
   unfold τ
   sorry
   /-
