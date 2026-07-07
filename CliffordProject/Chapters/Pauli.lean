@@ -7,6 +7,7 @@ import Mathlib.Data.ZMod.Basic
 import Mathlib.Data.Complex.Basic
 import Mathlib.LinearAlgebra.Matrix.ConjTranspose
 import Mathlib.Analysis.SpecialFunctions.Complex.Circle
+import Mathlib.LinearAlgebra.Matrix.NonsingularInverse
 
 import CliffordProject.LaTeXMacros
 import CliffordProject.Authors
@@ -101,6 +102,16 @@ lemma X_pow_d_eq_one : X d ^ d = 1 := by
   simp only [CharP.cast_eq_zero, add_zero, Matrix.of_apply]
   simp only [eq_comm]
   rfl
+```
+
+```lean "isUnit_X_det"
+lemma isUnit_X_det : IsUnit (X d).det := by
+  apply (Matrix.isUnit_iff_isUnit_det (X d)).mp
+  apply isUnit_iff_exists_inv.mpr
+  use X d ^ (d - 1)
+  nth_rewrite 1 [← pow_one (X d)]
+  rw [← pow_add, add_comm, Nat.sub_add_cancel, (X_pow_d_eq_one d)]
+  exact NeZero.one_le
 ```
 
 The generalized Pauli $`Z` matrix is diagonal and introduces a phase $`ω` to each standard basis vector $`\ket{k}`.
@@ -400,4 +411,14 @@ lemma Z_inv_pow : (x: ZMod d) →
   apply Z_pow_eq_mod_d
   rw [← ZMod.val_mul, neg_mul, one_mul]
   rw [(Nat.mod_eq_of_lt (ZMod.val_lt (-x)))]
+```
+
+```lean "isUnit_Z_det"
+lemma isUnit_Z_det : IsUnit (Z d).det := by
+  apply (Matrix.isUnit_iff_isUnit_det (Z d)).mp
+  apply isUnit_iff_exists_inv.mpr
+  use Z d ^ (d - 1)
+  nth_rewrite 1 [← pow_one (Z d)]
+  rw [← pow_add, add_comm, Nat.sub_add_cancel, (Z_pow_d_eq_one d)]
+  exact NeZero.one_le
 ```

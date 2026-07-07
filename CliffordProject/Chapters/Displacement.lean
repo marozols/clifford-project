@@ -11,7 +11,6 @@ import Mathlib.LinearAlgebra.Matrix.ZPow
 import Mathlib.Analysis.SpecialFunctions.Complex.Circle
 import Mathlib.LinearAlgebra.UnitaryGroup
 
-
 import CliffordProject.LaTeXMacros
 import CliffordProject.Authors
 import CliffordProject.Bibliography
@@ -240,20 +239,14 @@ If $`d` is odd then $`D_{\p+d\q} = D_{\p}` for all $`\p, \q ∈ ℤ^2`.
 lemma D_add_nsmul (p q : ℤ × ℤ) (hodd : Odd d) :
     D d (p.1 + d * q.1) (p.2 + d * q.2)
     = D d p.1 p.2 := by
-  sorry
-  /-
   unfold D
-  rw [ZMod.val_add, ZMod.val_mul, Nat.add_mod,
-    ZMod.val_natCast, Nat.mod_self, zero_mul,
-    Nat.zero_mod, Nat.zero_mod, add_zero, Nat.mod_mod,
-    ZMod.val_add, ZMod.val_mul, Nat.add_mod,
-    ZMod.val_natCast, Nat.mod_self, zero_mul,
-    Nat.zero_mod, Nat.zero_mod, add_zero, Nat.mod_mod,
-    tau_pow_n_mod_d_of_d_odd, ← Nat.mul_mod,
-    ← tau_pow_n_mod_d_of_d_odd,
-   ← X_pow_n_mod_d, ← Z_pow_n_mod_d]
-  <;> exact hodd -- for tau_pow_n_mod_d_of_d_odd
-  -/
+  rw [Matrix.zpow_add (isUnit_X_det d), Matrix.zpow_mul (X d) (isUnit_X_det d), zpow_natCast, X_pow_d_eq_one d,
+    Matrix.one_zpow, mul_one, Matrix.zpow_add (isUnit_Z_det d), Matrix.zpow_mul (Z d) (isUnit_Z_det d), zpow_natCast,
+    Z_pow_d_eq_one, Matrix.one_zpow, mul_one, zpow_mul]
+  nth_rewrite 2 [zpow_add' (by left; exact (tau_ne_zero d))]
+  rw [zpow_mul, zpow_natCast, tau_pow_d_eq_one_of_odd d hodd, one_zpow, mul_one, ← zpow_mul, mul_comm, add_comm,
+    add_mul, zpow_add' (by left; exact (tau_ne_zero d)), mul_assoc, zpow_mul, zpow_natCast,
+    tau_pow_d_eq_one_of_odd d hodd, one_zpow, one_mul, mul_comm]
 ```
 
 If $`d` is odd, the index $`\p` of a displacement operator $`D_\p` can be treated modulo $`d`.

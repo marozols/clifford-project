@@ -110,16 +110,18 @@ open Matrix in
 theorem clifford_symplectic_action
     (hodd: Odd d)
     (U : cliffordGroup d) :
-    ∃ F : Matrix.symplecticGroup (Fin 1) (ZMod d),
-    ∃ χ : ZMod d × ZMod d,
-    ∀ p : Fin 1 ⊕ Fin 1 → ZMod d,
+    ∃ F : Matrix.symplecticGroup (Fin 1) (ℤ),
+    ∃ χ : ℤ × ℤ,
+    ∀ p : Fin 1 ⊕ Fin 1 → ℤ,
     U.val.val * (D d (p (Sum.inl 0)) (p (Sum.inl 1)))
       * U.val.val.conjTranspose =
     ω d ^ (symp χ ⟨((F.val *ᵥ p) (Sum.inl 0)),
-        ((F.val *ᵥ p) (Sum.inl 1))⟩).val •
+        ((F.val *ᵥ p) (Sum.inl 1))⟩) •
       D d ((F.val *ᵥ p) (Sum.inl 0))
         ((F.val *ᵥ p) (Sum.inl 1))
     := by
+  sorry
+  /-
   obtain ⟨U, hU⟩ := U
   have h := cliffordGroupAction d U hU
   specialize h ⟨0, 0⟩
@@ -132,6 +134,7 @@ theorem clifford_symplectic_action
   -- f is equal to some linear map F' + d times some map h
   -- drop the second term when taking displacement operator of f in new form
   sorry
+  -/
 
 
 
