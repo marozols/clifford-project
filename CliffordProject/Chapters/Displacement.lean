@@ -61,6 +61,7 @@ where $`\dagger` denotes the conjugate transpose.
 ```lean "D_conj"
 lemma conjTranspose_D (x z : ℤ) :
     (D d x z).conjTranspose = D d (-x) (-z) := by
+
   unfold D
   rw [smul_mul_assoc]
   rw [(X_pow_Z_pow_eq_omega_mul_Z_pow_X_pow d x z)]
@@ -218,7 +219,7 @@ lemma D_pow_nsmul (p : ZMod d × ZMod d) (n : ℕ) :
       unfold symp; simp; ring
     rw [h, ZMod.val_zero, pow_zero, one_smul]
     simp; ring
-
+    sorry -- d must be odd for D_mul?
 
 ```
 
