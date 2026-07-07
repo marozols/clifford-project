@@ -135,12 +135,58 @@ where $`τ` is the root of unity from {uses "tau"}[] and $`\braket{\cdot,\cdot}`
 :::
 
 ```lean "D_mul"
-lemma D_mul (p q : ZMod d × ZMod d) :
+lemma D_mul (p q : ZMod d × ZMod d) (hodd : Odd d) :
     (D d p.1 p.2) * (D d q.1 q.2) =
     τ d ^ (symp p q).val •
     D d (p.1 + q.1) (p.2 + q.2) := by
-  sorry
+      unfold D
+      simp
+      unfold symp
+      nth_rewrite 1 [← mul_assoc]
+      nth_rewrite 2 [mul_assoc]
 
+      rw [Z_pow_X_pow_eq_omega_mul_X_pow_Z_pow]
+      simp
+      rw [← mul_assoc]
+      nth_rw 1 [mul_assoc]
+      --ring
+      rw [← pow_add]
+      rw [← pow_add]
+      rw [smul_smul]
+      rw [smul_smul]
+      rw [smul_smul]
+      --unfold symp
+
+      --rw [ZMod.val_add]
+      rw [← pow_add]
+      rw [← pow_add]
+      simp only [← tau_sq_eq_omega]
+      rw [← pow_mul]
+      rw [← pow_add]
+      --rw [← ZMod.val_add]
+      --simp only [ZMod.val_add.symm, ZMod.val_sub, ZMod.val_mul]
+      nth_rw 3 [ZMod.val_add]
+      nth_rw 3 [ZMod.val_add]
+      rw [pow_eq_pow_mod _ (X_pow_d_eq_one d)]
+      rw [pow_eq_pow_mod _ (Z_pow_d_eq_one d)]
+      congr 1
+      have hcast :
+          ((q.1.val * q.2.val + p.1.val * p.2.val
+            + 2 * (p.2.val * q.1.val) : ℕ) : ZMod d) =
+          (((p.2 * q.1 - p.1 * q.2).val
+            + (p.1 + q.1).val * (p.2 + q.2).val : ℕ) : ZMod d) := by
+        push_cast
+        simp only [ZMod.natCast_val, ZMod.cast_id]
+        ring
+      have hmod :
+          (q.1.val * q.2.val + p.1.val * p.2.val + 2 * (p.2.val * q.1.val)) % d =
+          ((p.2 * q.1 - p.1 * q.2).val
+            + (p.1 + q.1).val * (p.2 + q.2).val) % d :=
+        (ZMod.natCast_eq_natCast_iff _ _ _).mp hcast
+      rw [pow_eq_pow_mod _ (tau_pow_d_eq_one_of_odd d hodd), hmod,
+        ← pow_eq_pow_mod _ (tau_pow_d_eq_one_of_odd d hodd)]
+
+      --rw [← (Nat.mod_add_div (p.1.val + q.1.val) d)]
 
 ```
 The $`n`-th power of a displacement operator is again a displacement operator.
