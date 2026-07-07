@@ -37,7 +37,10 @@ lemma order_omega : orderOf (ω d) = d := by
   have calc_md : (m : ℝ) / (d : ℝ) = (n : ℂ) := by rw[mul_div_left_comm, mul_comm] at hn; simp at hn; apply hn
   have d_ge_zero : 0 < d := by apply Nat.zero_lt_of_ne_zero; apply hnezero.out;
   have ratio_between : (m : ℝ) / (d : ℝ) > 0 ∧ (m : ℝ) / d < 1 := by sorry; -- apply And.intro;
-  simp at calc_md; sorry; sorry
+  simp at calc_md;
+  --rw[calc_md] at ratio_between;
+  sorry;
+  apply Nat.zero_lt_of_ne_zero; apply hnezero.out
   -- apply d_ge_zero; rw[div_lt_one m d]
 
 @[simp]
