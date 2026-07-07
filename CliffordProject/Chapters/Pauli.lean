@@ -1,191 +1,85 @@
-import Verso
-import VersoManual
-import VersoBlueprint
-
 import Mathlib.Data.Matrix.Basic
 import Mathlib.Data.ZMod.Basic
 import Mathlib.Data.Complex.Basic
 import Mathlib.LinearAlgebra.Matrix.ConjTranspose
 import Mathlib.Analysis.SpecialFunctions.Complex.Circle
+import Mathlib.LinearAlgebra.Matrix.Permutation
 
-import CliffordProject.LaTeXMacros
-import CliffordProject.Authors
-import CliffordProject.Bibliography
 import CliffordProject.Chapters.RootsOfUnity
 import CliffordProject.Chapters.SymplecticForm
+import CliffordProject.Tools.MatrixAlgebra
 
-open Verso.Genre
-open Verso.Genre.Manual hiding citep citet citehere
-open Informal
+open MatrixAlgebraTools
 
-#doc (Manual) "Pauli matrices" =>
-
-:::group "Pauli_core"
-Core properties of the single-qudit Pauli matrices.
-:::
-
-This section defines the generalized Pauli $`X` and $`Z` matrices on $`ℂ^d` and proves some basic fats about them.
-Throughout this section we assume that $`d ≥ 1`.
-
-```lean "dimension_again"
 variable (d : ℕ) [NeZero d]
-```
 
-The generalized Pauli $`X` matrix corresponds to adding one modulo $`d`.
+omit [NeZero d] in
+def ZmodShift (i : ZMod d) : (ZMod d) ≃ (ZMod d) :=
+  .mk (fun x => x - i) (fun x => x + i)
+  (by unfold Function.LeftInverse; intro x; simp)
+  (by unfold Function.RightInverse; unfold Function.LeftInverse; intro x; simp)
 
-:::definition "Pauli_X" (parent := "Pauli_core") (owner := "Maris_Ozols")
-The $`d`-dimensional *Pauli $`X` matrix* acts as follows:
-$$`X \ket{k} = \ket{k+1}`
-where $`k ∈ ℤ_d` and addition is modulo $`d`.
-:::
+omit [NeZero d] in
+lemma ZmodShiftMul (i j : ZMod d) :
+  (ZmodShift d i) * (ZmodShift d j) = (ZmodShift d (i + j)) :=
+  by ext x; simp; unfold ZmodShift; simp; ring
 
-```lean "Pauli_X"
+omit [NeZero d] in
+lemma ZmodShiftInv (i : ZMod d) :
+  (ZmodShift d i)⁻¹ = (ZmodShift d (- i)) :=
+  by ext x; simp; unfold ZmodShift; simp;
+
+omit [NeZero d] in
+lemma ZmodShiftInv' (i : ZMod d) :
+  (ZmodShift d i).symm = (ZmodShift d (- i)) :=
+  by ext x; unfold ZmodShift; simp;
+
+-- NOTE : Permutation matrices are reverted, have to transpose to get the expected result!
+-- Hence the definition of ZmodShift that ends up reversed from the expected matrix action
 def X : Matrix (ZMod d) (ZMod d) ℂ :=
-  Matrix.of fun i j => if j + 1 = i then 1 else 0
-```
+  (Equiv.Perm.permMatrix ℂ (ZmodShift d 1))
 
-Powers of the Pauli $`X` matrix.
 
-:::lemma_ "X_pow_n" (parent := "Pauli_core") (owner := "Carli_Bruinsma")
-The $`n`-th power of the $`d`-dimensional Pauli $`X` matrix acts on basis vectors as
-$$`X^n \ket{k} = \ket{k + n \mod d}.`
-:::
-
-```lean "X_pow_n"
 lemma X_pow_pos_n (n : ℕ) : X d ^ n =
-    Matrix.of (fun i j => if j + (n : ZMod d) = i then 1
-    else 0) := by
-  induction n with
-  | zero =>
-    ext i j
-    have hij : i = j ↔ j = i := ⟨Eq.symm, Eq.symm⟩
-    simp [pow_zero, Matrix.one_apply, hij]
-  | succ n hind =>
-    ext i j
-    rw [pow_succ, hind, Matrix.mul_apply]
-    have hfun : ∀ (x : ZMod d), x ≠ (j + (1 : ZMod d)) →
-        X d x j = 0 := by
-      unfold X
-      intro x h
-      simp
-      by_contra h'
-      symm at h'
-      contradiction
-    have hfun'  : ∀ (x : ZMod d), x ≠ (j + (1 : ZMod d)) →
-        Matrix.of (fun i j => if j + (n : ZMod d) = i
-        then 1 else 0) i x * X d x j = 0 := by
-        intro x h
-        specialize hfun x h
-        rw [hfun, mul_zero]
-    rw [Fintype.sum_eq_single (j + 1) hfun']
-    by_cases h : j + ((n + 1) : ZMod d) = i <;>
-      simp [h];
-      rw [add_comm (n : ZMod d), ← add_assoc] at h;
-      simp [h, X]
-    intro hj
-    rw [add_assoc, add_comm 1] at hj
-    contradiction
-```
+  Equiv.Perm.permMatrix ℂ ((ZmodShift d n)) :=
+  by induction n with
+  | zero => simp; ext i j; unfold ZmodShift; simp; rfl
+  | succ n hind => rw [pow_succ, hind]; unfold X; simp;
+                   rw[<- Matrix.permMatrix_mul, ZmodShiftMul, add_comm];
 
-The Pauli $`X` matrix has order $`d`.
-
-:::lemma_ "X_pow_d_eq_one" (parent := "Pauli_core")  (owner := "Gina_Muuss")
-The $`d`-th power of the $`d`-dimensional Pauli $`X` matrix is the identity matrix:
-$$`X^d = I.`
-:::
-
-```lean "X_pow_d_eq_one"
+@[simp]
 lemma X_pow_d_eq_one : X d ^ d = 1 := by
-  rw [X_pow_pos_n]
-  ext i j
-  simp only [CharP.cast_eq_zero, add_zero, Matrix.of_apply]
-  simp only [eq_comm]
-  rfl
-```
+  rw [X_pow_pos_n]; simp; unfold ZmodShift; simp; ext x; simp; rfl
 
-The generalized Pauli $`Z` matrix is diagonal and introduces a phase $`ω` to each standard basis vector $`\ket{k}`.
 
-:::definition "Pauli_Z" (parent := "Pauli_core") (owner := "Maris_Ozols")
-The $`d`-dimensional *Pauli $`Z` matrix* acts as follows:
-$$`Z \ket{k} = ω^k \ket{k}`
-where $`k ∈ ℤ_d` and $`ω` is the primitive $`d`-th root of unity from {uses "omega"}[].
-:::
-
-```lean "Pauli_Z"
 noncomputable def Z : Matrix (ZMod d) (ZMod d) ℂ :=
-  Matrix.of fun i j => if i = j then ω d ^ i.val else 0
-```
+  Matrix.diagonal (fun i => (ω d) ^ i.val)
 
-The Pauli $`Z` matrix also has order $`d`.
-
-:::lemma_ "Z_pow_d_eq_one" (parent := "Pauli_core") (owner := "Carli_Bruinsma")
-The $`d`-th power of the $`d`-dimensional Pauli $`Z` matrix is the identity matrix:
-$$`Z^d = I.`
-:::
-
-```lean "Z_pow_n"
+-- Matrix.diagonal_mul_diagonal
 lemma Z_pow_n (n : ℕ) :
-    Z d ^ n = Matrix.diagonal
-    (fun i => ω d ^ (i.val * n)):= by
-  have hdiag : (Z d) =
-    Matrix.diagonal (fun i => ω d ^ i.val) := rfl
-  rw [hdiag, Matrix.diagonal_pow]
-  simp
-  intro i
-  rw [← pow_mul]
-```
+    Z d ^ n = Matrix.diagonal (fun i => (((ω d) ^ (n * i.val)) : ℂ)) :=
+  by induction n with
+  | zero => simp;
+  | succ k ih => rw [pow_succ, ih]; unfold Z; rw[Matrix.diagonal_mul_diagonal]; simp; intro i; ring
+--
 
-```lean "Z_pow_d_eq_one"
+@[simp]
 lemma Z_pow_d_eq_one : (Z d) ^ d = 1 := by
-  rw [Z_pow_n]
-  simp
-  ext i
-  rw [mul_comm, pow_mul, omega_pow_d_eq_one, one_pow]
+  rw [Z_pow_n]; simp; ext i
+  rw [pow_mul, omega_val_pow_d_eq_one, one_pow]
   rfl
-```
 
-Pauli $`X` and $`Z` commute up to a phase.
-
-:::lemma_ "ZX_eq_omega_mul_XZ" (parent := "Pauli_core") (owner := "Gina_Muuss")
-Pauli $`X` and $`Z` matrices satisfy the following commutation relation:
-$$`Z X = ω X Z.`
-:::
-
-```lean "ZX_eq_omega_mul_XZ"
 
 lemma ZX_eq_omega_mul_XZ :
-  Z d * X d = ω d • (X d * Z d) := by
-  ext i j
-  rw [Matrix.mul_apply, Matrix.smul_apply, Matrix.mul_apply]
-  unfold X Z
-  simp only [Matrix.of_apply, mul_ite, mul_one,
-    mul_zero, Finset.sum_ite_eq, Finset.mem_univ,
-    ↓reduceIte, ite_mul, one_mul, zero_mul,
-    Finset.sum_ite_eq', smul_eq_mul]
-  simp only [eq_comm]
-  by_cases h : i = j + 1
-  /- Case 1: h : i = j + 1-/
-  . rw [if_pos h, if_pos h, h, ← pow_succ', ZMod.val_add,
-    (omega_pow_n_mod_d d (j.val + 1)),
-    ZMod.val_one_eq_one_mod, Nat.add_mod_mod]
-  /- Case 2: h : i ≠ j + 1-/
-  rw [if_neg h, if_neg h]
-
-```
+  Z d * X d = (ω d).val • (X d * Z d) := by
+  ext i j; unfold Z; rw[Matrix.diagonal_mul]; simp; unfold X ZmodShift; simp
+  rw[<- pow_succ']; sorry
 
 
-And so do their powers.
 
-:::lemma_ "Z_pow_X_pow_eq_omega_mul_X_pow_Z_pow" (parent := "Pauli_core") (owner := "Daan_Planken")
-Pauli $`X` and $`Z` matrices satisfy the following commutation relation:
-$$`Z^k X^ℓ = ω^{k·ℓ} X^ℓ Z^k.`
-:::
-
-```lean "Z_pow_X_pow_eq_omega_mul_X_pow_Z_pow"
 lemma Z_pow_X_pow_eq_omega_mul_X_pow_Z_pow (k : ℕ) (ℓ : ℕ) :
-  (Z d) ^ k * (X d) ^ ℓ = (ω d) ^ (k * ℓ) •
-  ((X d) ^ ℓ * (Z d) ^ k) := by
-    induction ℓ with
+  (Z d) ^ k * (X d) ^ ℓ = (ω d) ^ (k * ℓ) • ((X d) ^ ℓ * (Z d) ^ k)
+  := by induction ℓ with
     | zero => simp
     | succ ℓ ih =>
       nth_rw 1 [pow_succ']
@@ -207,24 +101,7 @@ lemma Z_pow_X_pow_eq_omega_mul_X_pow_Z_pow (k : ℕ) (ℓ : ℕ) :
       rw [← pow_succ']
       rw [add_comm]
 
-      --#check Matrix.mul_smul
-      /-rw [smul_mul_assoc]
-      rw [ih]
-      rw [smul_smul]
-      rw [← pow_add]
-      rw [add_comm]
-      rw [← mul_add_one]
 
-      induction k with
-      | zero =>
-        simp
-        rw [pow_succ']
-      | succ k ih2 =>-/
-```
-
-And also backwards
-
-```lean "X_pow_Z_pow_eq_omega_mul_Z_pow_X_pow"
 lemma X_pow_Z_pow_eq_omega_mul_Z_pow_X_pow (k : ZMod d) (l : ZMod d) :
   (X d) ^ k.val * (Z d) ^ l.val = (ω d) ^ (-(k * l)).val •
   ((Z d) ^ l.val * (X d) ^ k.val) := by
@@ -235,29 +112,16 @@ lemma X_pow_Z_pow_eq_omega_mul_Z_pow_X_pow (k : ZMod d) (l : ZMod d) :
   rw [omega_pow_n_mod_d, ← ZMod.val_add]
   rw [mul_comm, neg_add_cancel, ZMod.val_zero]
   rw [pow_zero, one_smul]
-```
 
-:::lemma_ "X_pow_n_mod_d and Z_pow_n_mod_d" (parent := "Pauli_core") (owner := "Carli_Bruinsma")
-Powers of Pauli $`X` and $`Z` satisfy
-$$`X^n = X^{n \% d}`
-$$`Z^n = Z^{n \% d}`
-:::
 
-```lean "X_pow_n_mod_d and Z_pow_n_mod_d"
+
 theorem X_pow_n_mod_d (n : ℕ): X d ^ n = X d ^ (n % ↑d) :=
   pow_eq_pow_mod n (X_pow_d_eq_one d)
 
 theorem Z_pow_n_mod_d (n : ℕ): Z d ^ n = Z d ^ (n % ↑d) :=
   pow_eq_pow_mod n (Z_pow_d_eq_one d)
-```
 
 
-:::lemma_ "X_dagger" (parent := "Pauli_core") (owner := "Gina_Muuss")
-$$`X^{†} = X^(-1).`
-:::
-
-
-```lean "X_dagger"
 lemma X_inv : (X d).conjTranspose  =
 (X d)^((-1 : ZMod d).val) := by
   ext i j
@@ -287,9 +151,7 @@ lemma X_inv : (X d).conjTranspose  =
       not_true_eq_false] at h1
   . rfl
 
-```
 
-```lean "X_pow_eq_mod_d"
 lemma X_pow_eq_mod_d :  (x: ℕ) → (y: ℕ) →
   (x % d = y % d → X d ^ x = X d ^ y ) := by
     intro x y h
@@ -299,9 +161,7 @@ lemma X_pow_eq_mod_d :  (x: ℕ) → (y: ℕ) →
     rw [X_pow_d_eq_one]
     simp only [one_pow, one_mul]
     congr
-```
 
-```lean "X_inv_pow"
 lemma X_inv_pow : (x: ZMod d) →
   ((X d)^(x.val)).conjTranspose  =
   (X d)^((-x).val):= by
@@ -310,10 +170,7 @@ lemma X_inv_pow : (x: ZMod d) →
   apply X_pow_eq_mod_d
   rw [← ZMod.val_mul, neg_mul, one_mul]
   rw [(Nat.mod_eq_of_lt (ZMod.val_lt (-x)))]
-```
 
-
-```lean "Z_inv"
 lemma Z_inv : (Z d).conjTranspose  =
 (Z d)^((-1 : ZMod d).val) := by
   ext i j
@@ -343,10 +200,8 @@ lemma Z_inv : (Z d).conjTranspose  =
   . exfalso
     exact (h1 h2.symm)
   simp only [map_zero]
-```
 
 
-```lean "Z_pow_eq_mod_d"
 lemma Z_pow_eq_mod_d :  (x: ℕ) → (y: ℕ) →
   (x % d = y % d → Z d ^ x = Z d ^ y ) := by
   -- This is exactly the same proof as for X,
@@ -358,10 +213,8 @@ lemma Z_pow_eq_mod_d :  (x: ℕ) → (y: ℕ) →
     rw [Z_pow_d_eq_one]
     simp only [one_pow, one_mul]
     congr
-```
 
 
-```lean "Z_inv_pow"
 lemma Z_inv_pow : (x: ZMod d) →
   ((Z d)^(x.val)).conjTranspose  =
   (Z d)^((-x).val):= by
@@ -372,4 +225,3 @@ lemma Z_inv_pow : (x: ZMod d) →
   apply Z_pow_eq_mod_d
   rw [← ZMod.val_mul, neg_mul, one_mul]
   rw [(Nat.mod_eq_of_lt (ZMod.val_lt (-x)))]
-```

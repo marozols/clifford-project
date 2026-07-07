@@ -27,6 +27,10 @@ lemma omega_pow_d_eq_one : (ω d)^d = 1 := by
   · exact Complex.exp_two_pi_mul_I
   · exact d_invertible d
 
+@[simp]
+lemma omega_val_pow_d_eq_one : ((ω d).val) ^ d = 1 := by
+  rw[<- Units.val_pow_eq_pow_val, omega_pow_d_eq_one]; simp
+
 
 lemma order_omega : orderOf (ω d) = d := by
   rw[orderOf_eq_iff]; apply And.intro; apply omega_pow_d_eq_one;
