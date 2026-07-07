@@ -163,8 +163,13 @@ $`τ^2 = (-\exp(πi/d))^2 = (-1)^2 · (\exp(πi/d))^2 = 1 · \exp(2πi/d) = ω`.
 :::
 
 ```lean "tau_sq_eq_omega"
+omit [NeZero d] in
 lemma tau_sq_eq_omega : (τ d)^2 = ω d := by
-  sorry
+  unfold τ ω
+  rw [neg_sq, ← Complex.exp_nat_mul]
+  congr 1
+  push_cast
+  ring
 ```
 
 :::lemma_ "tau_pow_d_eq_one_of_odd" (parent := "roots_of_unity") (effort := "small") (owner := "Carli_Bruinsma")
