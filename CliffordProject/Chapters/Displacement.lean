@@ -7,6 +7,7 @@ import Mathlib.Data.Matrix.Basic
 import Mathlib.Data.ZMod.Basic
 import Mathlib.Data.Complex.Basic
 import Mathlib.LinearAlgebra.Matrix.ConjTranspose
+import Mathlib.LinearAlgebra.Matrix.ZPow
 import Mathlib.Analysis.SpecialFunctions.Complex.Circle
 import Mathlib.LinearAlgebra.UnitaryGroup
 
@@ -46,8 +47,8 @@ where $`τ` comes from {uses "tau"}[], $`X` comes from {uses "Pauli_X"}[], and $
 
 ```lean "displacement"
 noncomputable def D
-  (x z : ZMod d) : Matrix (ZMod d) (ZMod d) ℂ :=
-  (τ d)^(x.val * z.val) • (X d)^(x.val) * (Z d)^(z.val)
+  (x z : ℤ) : Matrix (ZMod d) (ZMod d) ℂ :=
+  (τ d)^(x * z) • (X d) ^ (x) * (Z d)^(z)
 ```
 
 Displacement operators behave nicely under complex conjugation, see Eq. (9) in {citet Appleby}[].
@@ -60,8 +61,8 @@ where $`\dagger` denotes the conjugate transpose.
 
 ```lean "D_conj"
 lemma conjTranspose_D (x z : ℤ) :
-    (D d x z).conjTranspose = D d (-x) (-z) := by
-
+    (D d x z).conjTranspose = D d (-x) (-z) := by sorry
+  /-
   unfold D
   rw [smul_mul_assoc]
   rw [(X_pow_Z_pow_eq_omega_mul_Z_pow_X_pow d x z)]
@@ -94,6 +95,7 @@ lemma conjTranspose_D (x z : ℤ) :
   #check ZMod.val_mul
   unfold τ
   sorry
+  -/
   /-
   --rw [Matrix.conjTranspose_apply]
   --unfold Matrix.conjTranspose_mul
@@ -136,10 +138,12 @@ where $`τ` is the root of unity from {uses "tau"}[] and $`\braket{\cdot,\cdot}`
 :::
 
 ```lean "D_mul"
-lemma D_mul (p q : ZMod d × ZMod d) (hodd : Odd d) :
+lemma D_mul (p q : ℤ × ℤ) (hodd : Odd d) :
     (D d p.1 p.2) * (D d q.1 q.2) =
-    τ d ^ (symp p q).val •
+    τ d ^ (symp p q) •
     D d (p.1 + q.1) (p.2 + q.2) := by
+  sorry
+  /-
       unfold D
       simp
       unfold symp
@@ -188,7 +192,7 @@ lemma D_mul (p q : ZMod d × ZMod d) (hodd : Odd d) :
         ← pow_eq_pow_mod _ (tau_pow_d_eq_one_of_odd d hodd)]
 
       --rw [← (Nat.mod_add_div (p.1.val + q.1.val) d)]
-
+  -/
 ```
 The $`n`-th power of a displacement operator is again a displacement operator.
 
@@ -205,8 +209,10 @@ The result follows since $`\langle n\p,\p\rangle = n \langle\p,\p\rangle = 0` th
 :::
 
 ```lean "D_pow_nsmul"
-lemma D_pow_nsmul (p : ZMod d × ZMod d) (n : ℕ) :
+lemma D_pow_nsmul (p : ℤ × ℤ) (n : ℕ) :
     D d p.1 p.2 ^ n = D d (n • p).1 (n • p).2 := by
+  sorry
+  /-
   induction n with
   | zero =>
     rw [pow_zero, zero_smul]
@@ -220,7 +226,7 @@ lemma D_pow_nsmul (p : ZMod d × ZMod d) (n : ℕ) :
     rw [h, ZMod.val_zero, pow_zero, one_smul]
     simp; ring
     sorry -- d must be odd for D_mul?
-
+  -/
 ```
 
 
@@ -231,9 +237,11 @@ If $`d` is odd then $`D_{\p+d\q} = D_{\p}` for all $`\p, \q ∈ ℤ^2`.
 :::
 
 ```lean "D_add_nsmul"
-lemma D_add_nsmul (p q : ZMod d × ZMod d) (hodd : Odd d) :
+lemma D_add_nsmul (p q : ℤ × ℤ) (hodd : Odd d) :
     D d (p.1 + d * q.1) (p.2 + d * q.2)
     = D d p.1 p.2 := by
+  sorry
+  /-
   unfold D
   rw [ZMod.val_add, ZMod.val_mul, Nat.add_mod,
     ZMod.val_natCast, Nat.mod_self, zero_mul,
@@ -245,6 +253,7 @@ lemma D_add_nsmul (p q : ZMod d × ZMod d) (hodd : Odd d) :
     ← tau_pow_n_mod_d_of_d_odd,
    ← X_pow_n_mod_d, ← Z_pow_n_mod_d]
   <;> exact hodd -- for tau_pow_n_mod_d_of_d_odd
+  -/
 ```
 
 If $`d` is odd, the index $`\p` of a displacement operator $`D_\p` can be treated modulo $`d`.
@@ -263,7 +272,7 @@ This is a direct consequence of {uses "D_add_nsmul"}[]
 @[default_instance]
 instance : EuclideanDomain ℤ := Int.euclideanDomain
 
-lemma D_mod_d (p : ZMod d × ZMod d) (hodd : Odd d):
+lemma D_mod_d (p : ℤ × ℤ) (hodd : Odd d):
     D d p.1 p.2 = D d p.1 p.2 :=
     sorry
     /-
@@ -293,7 +302,7 @@ By {uses "D_pow_nsmul"}[], $`D_\p^d = D_{d\p} = D_\mathbf{0} = I`, using $`d\p =
 :::
 
 ```lean "D_pow_d_eq_one"
-lemma D_pow_d_eq_one (p : ZMod d × ZMod d) (hOdd : Odd d) :
+lemma D_pow_d_eq_one (p : ℤ × ℤ) (hOdd : Odd d) :
     D d p.1 p.2 ^ d = 1 :=
     by sorry
 
@@ -325,10 +334,12 @@ For $`d > 1`, (to be continues... from the assumption, you work out the matrices
 
 ```lean "D_p_neq_D_q"
 lemma D_p_neq_D_q
-    (p q : ZMod d × ZMod d)
+    (p q : ℤ × ℤ)
     (α β : ℂ) [NeZero α] [NeZero β] :
     α • (D d p.1 p.2) = β • (D d q.1 q.2) →
     p.1 = q.1 ∧ p.2 = q.2 := by
+  sorry
+  /-
   unfold D
   intro h
   by_cases hd : d = 1
@@ -425,6 +436,7 @@ lemma D_p_neq_D_q
       apply_fun (· +p.2) at h2
       rw [sub_add, sub_self, sub_zero, zero_add] at h2
       exact h2.symm
+  -/
 ```
 
 Displacement operators with phases that are arbitrary powers of $`τ` form a group.
