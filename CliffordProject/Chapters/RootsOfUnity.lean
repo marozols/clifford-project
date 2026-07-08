@@ -20,6 +20,16 @@ def ω : ℂˣ := .mk
 
 
 @[simp]
+lemma omega_one : (ω 1).val = 1 := by
+  simp; unfold ω; simp; apply Units.ext; rfl
+
+omit [NeZero d] in
+@[simp]
+lemma omega_one' (hd : d = 1) : (ω d).val = 1 := by
+  simp; unfold ω; simp; apply Units.ext; rw[hd]; simp
+
+
+@[simp]
 lemma omega_pow_d_eq_one : (ω d)^d = 1 := by
   unfold ω; ext; simp
   rw [← Complex.exp_nat_mul]
@@ -47,12 +57,18 @@ lemma order_omega : orderOf (ω d) = d := by
   apply Nat.zero_lt_of_ne_zero; apply hnezero.out
   -- apply d_ge_zero; rw[div_lt_one m d]
 
-@[simp]
 lemma omega_pow_n_mod_d :
   ∀ n : Nat, (ω d) ^ n = (ω d) ^ (n % d) := by
     intro n
     nth_rw 1 [←(Nat.mod_add_div n d)]
     rw [pow_add, pow_mul, omega_pow_d_eq_one,
+      one_pow, mul_one]
+
+lemma omega_val_pow_n_mod_d :
+  ∀ n : Nat, (ω d).val ^ n = (ω d).val ^ (n % d) := by
+    intro n
+    nth_rw 1 [←(Nat.mod_add_div n d)]
+    rw [pow_add, pow_mul, omega_val_pow_d_eq_one,
       one_pow, mul_one]
 
 lemma omega_pow_k_mod_d_eq_pow_k_int :
