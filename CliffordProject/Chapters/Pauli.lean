@@ -4,6 +4,7 @@ import Mathlib.Data.Complex.Basic
 import Mathlib.LinearAlgebra.Matrix.ConjTranspose
 import Mathlib.Analysis.SpecialFunctions.Complex.Circle
 import Mathlib.LinearAlgebra.Matrix.Permutation
+import Mathlib.LinearAlgebra.Matrix.ZPow
 
 import CliffordProject.Chapters.RootsOfUnity
 import CliffordProject.Chapters.SymplecticForm
@@ -140,7 +141,7 @@ lemma X_inv' : (X d).conjTranspose = (X d) ^ (((-1) : ZMod d).val) := by
   · rw[<- ZMod.val_one'', X_pow_n_mod_d, <- ZMod.val_add (-1) 1]; simp; apply hd'
 
 
-lemma X_pow_eq_mod_d (x y: ℕ) :
+lemma X_pow_eq_mod_d (x y : ℕ) :
   (x % d = y % d → X d ^ x = X d ^ y ) := by
     intro h
     rw [← Nat.div_add_mod x d ]
@@ -150,17 +151,17 @@ lemma X_pow_eq_mod_d (x y: ℕ) :
     simp only [one_pow, one_mul]
     congr
 
-lemma X_inv_pow : (x: ZMod d) →
-  ((X d)^(x.val)).conjTranspose  =
-  (X d)^((-x).val):= by
-  intro x
-  rw [Matrix.conjTranspose_pow, X_inv, ← pow_mul]
-  apply X_pow_eq_mod_d
-  rw [← ZMod.val_mul, neg_mul, one_mul]
-  rw [(Nat.mod_eq_of_lt (ZMod.val_lt (-x)))]
 
-lemma Z_inv : (Z d).conjTranspose  =
-(Z d)^((-1 : ZMod d).val) := by
+lemma X_inv_pow (x : ZMod d) :
+  ((X d)^(x.val)).conjTranspose =
+  (X d)^((-x).val):= by
+  simp; rw[ZMod.neg_val]; by_cases hx : x = 0
+  · rw[hx]; simp
+  · sorry
+-- Matrix.zpow_neg_natCast,
+
+lemma Z_inv : (Z d).conjTranspose =
+(Z d) ^ ((-1 : ZMod d).val) := by
   ext i j
   rw [Matrix.conjTranspose_apply]
   have hdiag : (Z d) =

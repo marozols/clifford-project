@@ -72,7 +72,7 @@ lemma omega_val_pow_n_mod_d :
       one_pow, mul_one]
 
 lemma omega_pow_k_mod_d_eq_pow_k_int :
-  ∀ k : Int, (ω d) ^ k = (ω d) ^ (k % d) := by
+  ∀ k : ℤ, (ω d) ^ k = (ω d) ^ (k % d) := by
     intro k; --unfold ω; ext; simp
     nth_rw 1 [← (Int.emod_add_ediv_mul k d)]
     rw[zpow_add]; simp
