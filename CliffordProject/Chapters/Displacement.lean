@@ -138,7 +138,7 @@ where $`τ` is the root of unity from {uses "tau"}[] and $`\braket{\cdot,\cdot}`
 
 ```lean "D_mul"
 lemma D_mul (p q : ℤ × ℤ) :
-    (D d p) * (D d 1) =
+    (D d p) * (D d q) =
     τ d ^ (symp p q) •
     D d (p + q) := by
     sorry
