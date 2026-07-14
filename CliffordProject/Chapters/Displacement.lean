@@ -137,12 +137,12 @@ where $`τ` is the root of unity from {uses "tau"}[] and $`\braket{\cdot,\cdot}`
 :::
 
 ```lean "D_mul"
-lemma D_mul (p q : ℤ × ℤ) (hodd : Odd d) :
+lemma D_mul (p q : ℤ × ℤ) :
     (D d p.1 p.2) * (D d q.1 q.2) =
     τ d ^ (symp p q) •
     D d (p.1 + q.1) (p.2 + q.2) := by
-  sorry
-  /-
+    sorry
+    /-
       unfold D
       simp
       unfold symp

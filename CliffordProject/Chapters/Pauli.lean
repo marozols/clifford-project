@@ -6,6 +6,7 @@ import Mathlib.Data.Matrix.Basic
 import Mathlib.Data.ZMod.Basic
 import Mathlib.Data.Complex.Basic
 import Mathlib.LinearAlgebra.Matrix.ConjTranspose
+import Mathlib.LinearAlgebra.Matrix.ZPow
 import Mathlib.Analysis.SpecialFunctions.Complex.Circle
 import Mathlib.LinearAlgebra.Matrix.NonsingularInverse
 
@@ -193,10 +194,14 @@ $$`Z^k X^ℓ = ω^{k·ℓ} X^ℓ Z^k.`
 :::
 
 ```lean "Z_pow_X_pow_eq_omega_mul_X_pow_Z_pow"
-lemma Z_pow_X_pow_eq_omega_mul_X_pow_Z_pow (k : ZMod d) (ℓ : ZMod d) :
-  (Z d) ^ k.val * (X d) ^ ℓ.val = (ω d) ^ (k.val * ℓ.val) •
-  ((X d) ^ ℓ.val * (Z d) ^ k.val) := by
-    induction ℓ.val with
+lemma Z_pow_X_pow_eq_omega_mul_X_pow_Z_pow (k : ℤ) (ℓ : ℤ) :
+  (Z d) ^ k * (X d) ^ ℓ = (ω d) ^ (k * ℓ) •
+  ((X d) ^ ℓ * (Z d) ^ k) := by
+
+  have h (k : ℤ) (ℓ : ℤ) : (Z d) ^ k * (X d) ^ ℓ = (ω d) ^ (k * ℓ) •((X d) ^ ℓ * (Z d) ^ k) := by
+    sorry
+  /-
+    induction ℓ with
     | zero => simp
     | succ ℓ ih =>
       nth_rw 1 [pow_succ']
@@ -232,15 +237,25 @@ lemma Z_pow_X_pow_eq_omega_mul_X_pow_Z_pow (k : ZMod d) (ℓ : ZMod d) :
       rw [← mul_assoc]
       rw [← pow_succ']
       rw [add_comm]
+    -/
+  rcases lt_or_ge k 0 with h1 | h1
 
+  sorry
+  rcases lt_or_ge ℓ 0 with h2 | h2
+  sorry
+  lift k to ℕ using h1
+  lift ℓ to ℕ using h2
+  rw [(h k ℓ)]
 ```
 
 And also backwards
 
 ```lean "X_pow_Z_pow_eq_omega_mul_Z_pow_X_pow"
 lemma X_pow_Z_pow_eq_omega_mul_Z_pow_X_pow (k : ZMod d) (l : ZMod d) :
+
   (X d) ^ k.val * (Z d) ^ l.val = (ω d) ^ (-(k * l)).val •
   ((Z d) ^ l.val * (X d) ^ k.val) := by
+  /-
   rw [(Z_pow_X_pow_eq_omega_mul_X_pow_Z_pow d l k)]
   simp [smul_smul]
   nth_rw 2 [omega_pow_n_mod_d]
@@ -248,13 +263,17 @@ lemma X_pow_Z_pow_eq_omega_mul_Z_pow_X_pow (k : ZMod d) (l : ZMod d) :
   rw [omega_pow_n_mod_d, ← ZMod.val_add]
   rw [mul_comm, neg_add_cancel, ZMod.val_zero]
   rw [pow_zero, one_smul]
+  -/
+  sorry
 ```
 
 ```lean "X_pow_Z_pow_eq_omega_mul_Z_pow_X_pow_int"
 lemma X_pow_Z_pow_eq_omega_mul_Z_pow_X_pow_int (k : ℤ) (l : ℤ) :
+
   (X d) ^ (l : ZMod d).val * (Z d) ^ (k : ZMod d).val =
   (ω d) ^ (-(k * l)) •
   ((Z d) ^ (k : ZMod d).val * (X d) ^ (l : ZMod d).val) := by
+  /-
   rw [(Z_pow_X_pow_eq_omega_mul_X_pow_Z_pow d (k : ZMod d) (l : ZMod d) )]
   rw [smul_smul, ← zpow_natCast]
   nth_rw 1 [omega_pow_k_mod_d_eq_pow_k_zmod]
@@ -273,7 +292,8 @@ lemma X_pow_Z_pow_eq_omega_mul_Z_pow_X_pow_int (k : ℤ) (l : ℤ) :
 
   rw [← ZMod.val_add]
   simp only [neg_add_cancel, ZMod.val_zero, pow_zero, one_smul]
-
+  -/
+  sorry
 ```
 
 :::lemma_ "X_pow_n_mod_d and Z_pow_n_mod_d" (parent := "Pauli_core") (owner := "Carli_Bruinsma")
