@@ -113,12 +113,12 @@ theorem clifford_symplectic_action
     ∃ F : Matrix.symplecticGroup (Fin 1) (ℤ),
     ∃ χ : ℤ × ℤ,
     ∀ p : Fin 1 ⊕ Fin 1 → ℤ,
-    U.val.val * (D d (p (Sum.inl 0)) (p (Sum.inl 1)))
+    U.val.val * (D d ⟨p (Sum.inl 0), p (Sum.inl 1)⟩)
       * U.val.val.conjTranspose =
-    ω d ^ (symp χ ⟨((F.val *ᵥ p) (Sum.inl 0)),
-        ((F.val *ᵥ p) (Sum.inl 1))⟩) •
-      D d ((F.val *ᵥ p) (Sum.inl 0))
-        ((F.val *ᵥ p) (Sum.inl 1))
+    ω d ^ (symp χ ⟨(F.val *ᵥ p) (Sum.inl 0),
+        (F.val *ᵥ p) (Sum.inl 1)⟩) •
+      D d ⟨(F.val *ᵥ p) (Sum.inl 0),
+        (F.val *ᵥ p) (Sum.inl 1)⟩
     := by
   sorry
   /-

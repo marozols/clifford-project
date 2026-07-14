@@ -49,12 +49,12 @@ for all $`\p ∈ ℤ_d^2`.
 lemma cliffordGroupAction (d : ℕ) [NeZero d]
   (U : Matrix.unitaryGroup (ZMod d) ℂ)
   (hU : U ∈ cliffordGroup d)
-  (p : ZMod d × ZMod d) :
-    ∃ f : ZMod d × ZMod d → ZMod d × ZMod d,
-    ∃ g : ZMod d × ZMod d → ℝ,
-    U * (D d p.1.val p.2.val) * U.val.conjTranspose
+  (p : ℤ × ℤ) :
+    ∃ f : ℤ × ℤ → ℤ × ℤ,
+    ∃ g : ℤ × ℤ → ℝ,
+    U * (D d p) * U.val.conjTranspose
     = Complex.exp (Complex.I * g p)
-    • (D d (f p).1.val (f p).2.val) := by
+    • (D d (f p)) := by
   sorry
       /-
   have hD : (D d p.1 p.2) ∈ Matrix.unitaryGroup (ZMod d) ℂ

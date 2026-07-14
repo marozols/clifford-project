@@ -46,8 +46,8 @@ where $`τ` comes from {uses "tau"}[], $`X` comes from {uses "Pauli_X"}[], and $
 
 ```lean "displacement"
 noncomputable def D
-  (x z : ℤ) : Matrix (ZMod d) (ZMod d) ℂ :=
-  (τ d)^(x * z) • (X d) ^ (x) * (Z d)^(z)
+  (p : ℤ × ℤ) : Matrix (ZMod d) (ZMod d) ℂ :=
+  (τ d) ^ (p.1 * p.2) • (X d) ^ (p.1) * (Z d) ^ (p.2)
 ```
 
 Displacement operators behave nicely under complex conjugation, see Eq. (9) in {citet Appleby}[].
@@ -59,8 +59,8 @@ where $`\dagger` denotes the conjugate transpose.
 :::
 
 ```lean "D_conj"
-lemma conjTranspose_D (x z : ℤ) :
-    (D d x z).conjTranspose = D d (-x) (-z) := by sorry
+lemma conjTranspose_D (p : ℤ × ℤ) :
+    (D d p).conjTranspose = D d (-p) := by sorry
   /-
   unfold D
   rw [smul_mul_assoc]
@@ -138,9 +138,9 @@ where $`τ` is the root of unity from {uses "tau"}[] and $`\braket{\cdot,\cdot}`
 
 ```lean "D_mul"
 lemma D_mul (p q : ℤ × ℤ) :
-    (D d p.1 p.2) * (D d q.1 q.2) =
+    (D d p) * (D d 1) =
     τ d ^ (symp p q) •
-    D d (p.1 + q.1) (p.2 + q.2) := by
+    D d (p + q) := by
     sorry
     /-
       unfold D
@@ -209,7 +209,7 @@ The result follows since $`\langle n\p,\p\rangle = n \langle\p,\p\rangle = 0` th
 
 ```lean "D_pow_nsmul"
 lemma D_pow_nsmul (p : ℤ × ℤ) (n : ℕ) :
-    D d p.1 p.2 ^ n = D d (n • p).1 (n • p).2 := by
+    D d p ^ n = D d (n • p) := by
   sorry
   /-
   induction n with
@@ -237,9 +237,10 @@ If $`d` is odd then $`D_{\p+d\q} = D_{\p}` for all $`\p, \q ∈ ℤ^2`.
 
 ```lean "D_add_nsmul"
 lemma D_add_nsmul (p q : ℤ × ℤ) (hodd : Odd d) :
-    D d (p.1 + d * q.1) (p.2 + d * q.2)
-    = D d p.1 p.2 := by
+    D d (p + d • q)
+    = D d p := by
   unfold D
+  dsimp
   rw [Matrix.zpow_add (isUnit_X_det d), Matrix.zpow_mul (X d) (isUnit_X_det d), zpow_natCast, X_pow_d_eq_one d,
     Matrix.one_zpow, mul_one, Matrix.zpow_add (isUnit_Z_det d), Matrix.zpow_mul (Z d) (isUnit_Z_det d), zpow_natCast,
     Z_pow_d_eq_one, Matrix.one_zpow, mul_one, zpow_mul]
@@ -266,7 +267,7 @@ This is a direct consequence of {uses "D_add_nsmul"}[]
 instance : EuclideanDomain ℤ := Int.euclideanDomain
 
 lemma D_mod_d (p : ℤ × ℤ) (hodd : Odd d):
-    D d p.1 p.2 = D d p.1 p.2 :=
+    D d p = D d ⟨p.1 % d, p.2 % d⟩ :=
     sorry
     /-
     by calc
@@ -296,7 +297,7 @@ By {uses "D_pow_nsmul"}[], $`D_\p^d = D_{d\p} = D_\mathbf{0} = I`, using $`d\p =
 
 ```lean "D_pow_d_eq_one"
 lemma D_pow_d_eq_one (p : ℤ × ℤ) (hOdd : Odd d) :
-    D d p.1 p.2 ^ d = 1 :=
+    D d p ^ d = 1 :=
     by sorry
 
     /-rw [D_pow_nsmul]; calc
@@ -329,8 +330,8 @@ For $`d > 1`, (to be continues... from the assumption, you work out the matrices
 lemma D_p_neq_D_q
     (p q : ℤ × ℤ)
     (α β : ℂ) [NeZero α] [NeZero β] :
-    α • (D d p.1 p.2) = β • (D d q.1 q.2) →
-    p.1 = q.1 ∧ p.2 = q.2 := by
+    α • (D d p) = β • (D d q) →
+    p = q := by
   sorry
   /-
   unfold D
@@ -443,9 +444,9 @@ where $`τ` is from {uses "tau"}[] and $`D_\p` is from {uses "displacement"}[].
 ```lean "Pauli_group"
 def pauliGroup (d : ℕ) [NeZero d] :
     Subgroup (Matrix.unitaryGroup (ZMod d) ℂ) where
-  carrier := {U | ∃ (a : ZMod d) (p : ZMod d × ZMod d),
+  carrier := {U | ∃ (a : ℤ) (p : ℤ × ℤ),
     (U : Matrix (ZMod d) (ZMod d) ℂ) =
-      (τ d) ^ a.val • D d (p.1.val : ℤ) (p.2.val : ℤ)}
+      (τ d) ^ a • D d p}
 
   one_mem' := by use 0; use (0,0); simp; unfold D; simp
   mul_mem' := @fun A B A' B' => sorry -- Need 5.30
