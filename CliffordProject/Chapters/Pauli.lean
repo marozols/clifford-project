@@ -47,6 +47,11 @@ def X : Matrix (ZMod d) (ZMod d) ℂ :=
 lemma X_one (hd : d = 1) (n : ℕ) : (X d) ^ n = 1 := by
   unfold X; rw[ZmodShiftOne]; simp; apply hd
 
+@[simp]
+lemma X_inv : (X d)† = (X d)⁻¹ := by
+  unfold X; simp; symm; rw[Matrix.inv_eq_left_inv];
+  rw[<- Matrix.permMatrix_mul]; simp
+
 lemma X_pow_pos_n (n : ℕ) : X d ^ n =
   Equiv.Perm.permMatrix ℂ ((ZmodShift d n)) :=
   by induction n with
@@ -66,6 +71,12 @@ omit [NeZero d] in
 @[simp]
 lemma Z_one (hd : d = 1) : (Z d) = 1 := by
   unfold Z; simp; ext x; rw[omega_one']; simp; apply hd
+
+@[simp]
+lemma Z_inv : (Z d)† = (Z d)⁻¹ := by
+  unfold Z; simp; rw[Matrix.inv_diagonal]; simp; intro i;
+      sorry
+    --rw[Ring.inverse_unit]; sorry
 
 lemma Z_pow_n (n : ℕ) :
     Z d ^ n = Matrix.diagonal (fun i => (((ω d) ^ (n * i.val)) : ℂ)) :=
@@ -130,11 +141,6 @@ theorem X_pow_n_mod_d (n : ℕ): X d ^ n = X d ^ (n % d) :=
 theorem Z_pow_n_mod_d (n : ℕ): Z d ^ n = Z d ^ (n % d) :=
   pow_eq_pow_mod n (Z_pow_d_eq_one d)
 
-@[simp]
-lemma X_inv : (X d).conjTranspose = (X d)⁻¹ := by
-  unfold X; simp; symm; rw[Matrix.inv_eq_left_inv];
-  rw[<- Matrix.permMatrix_mul]; simp
-
 lemma X_inv' : (X d).conjTranspose = (X d) ^ (((-1) : ZMod d).val) := by
   simp; rw[Matrix.inv_eq_left_inv]; rw[<- pow_succ]; by_cases hd' : d = 1
   · rw[X_one]; apply hd'
@@ -160,35 +166,6 @@ lemma X_inv_pow (x : ZMod d) :
   · sorry
 -- Matrix.zpow_neg_natCast,
 
-lemma Z_inv : (Z d).conjTranspose =
-(Z d) ^ ((-1 : ZMod d).val) := by
-  ext i j
-  rw [Matrix.conjTranspose_apply]
-  have hdiag : (Z d) =
-    Matrix.diagonal (fun i => ω d ^ i.val) := rfl
-  rw [hdiag, Matrix.diagonal_pow,
-    Matrix.diagonal_apply,
-    Matrix.diagonal_apply]
-  simp only [RCLike.star_def, Pi.pow_apply]
-  split_ifs with h1 h2 h2
-  . rw [h1]
-    simp
-    rw [← pow_mul, mul_comm, pow_mul]
-    have homega :
-      (starRingEnd ℂ ) (ω d) = ω d ^ (-1 : ℤ) := by
-      unfold ω
-      rw [← Complex.exp_conj, ← Complex.exp_int_mul]
-      rw [starRingEnd_apply]
-      simp
-      rw [neg_div]
-    rw [homega, omega_pow_k_mod_d_eq_pow_k_zmod]
-    congr
-    simp only [Int.reduceNeg, Int.cast_neg, Int.cast_one]
-  . exfalso
-    exact (h2 h1.symm)
-  . exfalso
-    exact (h1 h2.symm)
-  simp only [map_zero]
 
 
 lemma Z_pow_eq_mod_d :  (x: ℕ) → (y: ℕ) →
@@ -209,8 +186,5 @@ lemma Z_inv_pow : (x: ZMod d) →
   (Z d)^((-x).val):= by
   -- This is exactly the same proof as for X,
   -- maybe we can consolidate
-  intro x
-  rw [Matrix.conjTranspose_pow, Z_inv, ← pow_mul]
-  apply Z_pow_eq_mod_d
-  rw [← ZMod.val_mul, neg_mul, one_mul]
-  rw [(Nat.mod_eq_of_lt (ZMod.val_lt (-x)))]
+  intro x; simp; sorry
+  --rw [(Nat.mod_eq_of_lt (ZMod.val_lt (-x)))]

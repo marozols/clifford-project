@@ -19,7 +19,7 @@ notation "⟨" a "," b "⟩" => symp a b
 
 omit [NeZero d] in
 lemma symp_antisymmetric (p q : R × R) :
-  ⟨p, q⟩ = - ⟨q, p⟩ := by unfold symp; ring
+  ⟨p, q⟩ = -⟨q, p⟩ := by unfold symp; ring
 
 omit [NeZero d] in
 @[simp]

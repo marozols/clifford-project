@@ -45,6 +45,7 @@ variable {R : Type} [CommRing R]
 public instance : Coe (R × R) ((Fin 2) → R) where
   coe := fun p => ![p.1, p.2]
 
+
 @[default_instance]
 public instance : Coe ((Fin 2) → R) (R × R) where
   coe := fun f => (f 0, f 1)
@@ -67,5 +68,12 @@ public theorem FinMatrixBasisExt {d : ℕ} [NeZero d]
   (f1 f2 : (ZMod d) → ((ZMod d) → R)) :
   ((MatrixFromBasisImage f1) = (MatrixFromBasisImage f2)) ↔ (f1 = f2) :=
   by apply Iff.intro; intro h; unfold MatrixFromBasisImage at h; simp at h; apply h; intro h; rw[h]
+
+
+/-
+    Notations
+-/
+
+postfix:max "†" => Matrix.conjTranspose
 
 end MatrixAlgebraTools

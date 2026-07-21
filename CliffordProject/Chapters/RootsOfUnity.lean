@@ -1,8 +1,7 @@
-
-
 import Mathlib.Analysis.SpecialFunctions.Complex.Circle
+import Mathlib.Analysis.SpecialFunctions.Pow.Complex
 import Mathlib.RingTheory.RootsOfUnity.Complex
-
+import CliffordProject.Tools.MatrixAlgebra
 
 variable (d : ℕ) [hnezero : NeZero d]
 
@@ -20,13 +19,13 @@ def ω : ℂˣ := .mk
 
 
 @[simp]
-lemma omega_one : (ω 1).val = 1 := by
-  simp; unfold ω; simp; apply Units.ext; rfl
+lemma omega_one : (ω 1) = 1 := by
+  ext; unfold ω; simp;
 
 omit [NeZero d] in
 @[simp]
-lemma omega_one' (hd : d = 1) : (ω d).val = 1 := by
-  simp; unfold ω; simp; apply Units.ext; rw[hd]; simp
+lemma omega_one' (hd : d = 1) : ω d = 1 := by
+  rw[hd]; simp
 
 
 @[simp]
@@ -41,6 +40,16 @@ lemma omega_pow_d_eq_one : (ω d)^d = 1 := by
 lemma omega_val_pow_d_eq_one : ((ω d).val) ^ d = 1 := by
   rw[<- Units.val_pow_eq_pow_val, omega_pow_d_eq_one]; simp
 
+omit [NeZero d] in
+@[simp]
+lemma omega_star : star ((ω d).val) = (ω d).val⁻¹
+ := by rw[Complex.inv_def]; simp; unfold ω; simp;
+        rw[<- Complex.sq_norm, Complex.norm_exp]; simp
+
+omit [NeZero d] in
+@[simp]
+lemma omega_pow_star (i : ℕ) : star (((ω d).val) ^ i) = ((ω d).val ^ i)⁻¹
+  := by simp;
 
 lemma order_omega : orderOf (ω d) = d := by
   rw[orderOf_eq_iff]; apply And.intro; apply omega_pow_d_eq_one;
