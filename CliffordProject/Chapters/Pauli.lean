@@ -2,6 +2,7 @@ import Mathlib.Data.Matrix.Basic
 import Mathlib.Data.ZMod.Basic
 import Mathlib.Data.Complex.Basic
 import Mathlib.LinearAlgebra.Matrix.ConjTranspose
+import Mathlib.LinearAlgebra.Matrix.ZPow
 import Mathlib.Analysis.SpecialFunctions.Complex.Circle
 import Mathlib.LinearAlgebra.Matrix.Permutation
 import Mathlib.LinearAlgebra.Matrix.ZPow

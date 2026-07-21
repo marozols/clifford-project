@@ -163,7 +163,16 @@ lemma D_pow_nsmul (p : ℤ × ℤ) (n : ℕ) :
     simp; ring
     sorry -- d must be odd for D_mul?
   -/
+```
 
+
+If $`d` is odd, adding a multiple of $`d` to the index of a displacement operator does not change it, see Eq. (11) in {citet Appleby}[].
+
+:::lemma_ "D_add_nsmul" (owner := "Carli_Bruinsma")
+If $`d` is odd then $`D_{\p+d\q} = D_{\p}` for all $`\p, \q ∈ ℤ^2`.
+:::
+
+```lean "D_add_nsmul"
 lemma D_add_nsmul (p q : ℤ × ℤ) (hodd : Odd d) :
     D d (p + d • q)
     = D d p := by

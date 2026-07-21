@@ -6,7 +6,7 @@ require mathlib from ".." / "mathlib4"
 
 package CliffordProject where
   precompileModules := false
-  leanOptions := #[⟨`experimental.module, true⟩]
+  leanOptions := #[⟨`experimental.module, true⟩, ⟨`verso.code.warnLineLength, 120⟩]
 
 @[default_target]
 lean_lib CliffordProject where
