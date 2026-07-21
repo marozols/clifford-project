@@ -27,14 +27,23 @@ omit [NeZero d] in
 lemma omega_one' (hd : d = 1) : ω d = 1 := by
   rw[hd]; simp
 
+@[simp]
+lemma omega_inv_pow (i : ZMod d) : ((ω d).val ^ i.val)⁻¹ = (ω d).val ^ (-i).val
+  := by sorry;
 
+
+omit [NeZero d] in
 @[simp]
 lemma omega_pow_d_eq_one : (ω d)^d = 1 := by
   unfold ω; ext; simp
-  rw [← Complex.exp_nat_mul]
-  rw [IsUnit.mul_div_cancel]
-  · exact Complex.exp_two_pi_mul_I
-  · exact d_invertible d
+  rw [← Complex.exp_nat_mul]; by_cases hd : d = 0
+  · rw[hd]; simp
+  · ring_nf; calc
+      Complex.exp (↑d * ↑Real.pi * Complex.I * (↑d)⁻¹ * 2) = Complex.exp (↑d * (↑d)⁻¹ * ↑Real.pi * Complex.I * 2)
+        := by ring_nf
+      _ = Complex.exp (↑Real.pi * Complex.I * 2)
+        := by rw[Complex.mul_inv_cancel, one_mul]; simp; apply hd
+      _ = 1 := by rw[mul_comm, <- mul_assoc, Complex.exp_two_pi_mul_I];
 
 @[simp]
 lemma omega_val_pow_d_eq_one : ((ω d).val) ^ d = 1 := by

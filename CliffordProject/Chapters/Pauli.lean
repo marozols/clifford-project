@@ -64,10 +64,22 @@ lemma X_pow_d_eq_one : X d ^ d = 1 := by
   rw [X_pow_pos_n]; simp; unfold ZmodShift; simp; ext x; simp; rfl
 
 
-noncomputable def Z : Matrix (ZMod d) (ZMod d) ℂ :=
-  Matrix.diagonal (fun i => (ω d) ^ i.val)
+omit [NeZero d] in
+@[reducible]
+noncomputable def diag_omega_pow : (ZMod d → ℂ)ˣ :=
+  .mk (fun i => (ω d).val ^ i.val) (fun i => (ω d).val ^ (-i).val)
+    (by ext i; simp; rw[<- pow_add, omega_val_pow_n_mod_d d (i.val + (-i).val), <- ZMod.val_add]; simp)
+    (by ext i; simp; rw[<- pow_add, omega_val_pow_n_mod_d d ((-i).val + i.val), <- ZMod.val_add]; simp)
+
+@[simp]
+lemma diag_omega_pow_inv :
+  Ring.inverse (diag_omega_pow d).val = fun i => (ω d).val ^ (-i).val
+  := by rw[Ring.inverse_unit]; rfl
 
 omit [NeZero d] in
+noncomputable def Z : Matrix (ZMod d) (ZMod d) ℂ :=
+  Matrix.diagonal (diag_omega_pow d)
+
 @[simp]
 lemma Z_one (hd : d = 1) : (Z d) = 1 := by
   unfold Z; simp; ext x; rw[omega_one']; simp; apply hd
@@ -75,8 +87,8 @@ lemma Z_one (hd : d = 1) : (Z d) = 1 := by
 @[simp]
 lemma Z_inv : (Z d)† = (Z d)⁻¹ := by
   unfold Z; simp; rw[Matrix.inv_diagonal]; simp; intro i;
-      sorry
-    --rw[Ring.inverse_unit]; sorry
+  rw[diag_omega_pow_inv]
+
 
 lemma Z_pow_n (n : ℕ) :
     Z d ^ n = Matrix.diagonal (fun i => (((ω d) ^ (n * i.val)) : ℂ)) :=
