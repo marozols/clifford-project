@@ -198,13 +198,45 @@ lemma Z_pow_X_pow_eq_omega_mul_X_pow_Z_pow (k : ℤ) (ℓ : ℤ) :
   (Z d) ^ k * (X d) ^ ℓ = (ω d) ^ (k * ℓ) •
   ((X d) ^ ℓ * (Z d) ^ k) := by
 
-  have h (k : ℤ) (ℓ : ℤ) : (Z d) ^ k * (X d) ^ ℓ = (ω d) ^ (k * ℓ) •((X d) ^ ℓ * (Z d) ^ k) := by
+  have dgt : (1 : ℤ) ≤ ↑d := by
+    exact_mod_cast Nat.one_le_iff_ne_zero.mpr (NeZero.ne d)
+  have dk (k : ℤ) (h1 : k < 0) : -↑d * k + k ≥ 0 := by
+    nth_rw 2 [← one_mul k]
+    simp
+    --have dgt : (1 : ℤ) ≤ ↑d := by sorry
+    have h2 : ↑d * k ≤ 1 * k := mul_le_mul_of_nonpos_right dgt h1.le
+    simpa using h2
+  have hxk (k : ℤ) : X d^k = X d^(-d*k + k) := by
+    rw [← Matrix.one_mul (X d^k)]
+    rw [← Matrix.one_zpow (-k)]
+    rw [← X_pow_d_eq_one]
+    rw [← zpow_natCast (X d) d]
+    rw [← Matrix.zpow_mul (X d) (isUnit_X_det d) d (-k)]--, ← Matrix.zpow_add (isUnit_X_det d)]; ring_nf
+    rw [← Matrix.zpow_add (isUnit_X_det d)]
+    simp
+
+  have hzk (k : ℤ) : Z d^k = Z d^(-d*k + k) := by
     sorry
-  /-
+    /-
+    rw [← Matrix.one_mul (Z d^k)]
+    rw [← Matrix.one_zpow (-k)]
+    rw [← Z_pow_d_eq_one]
+    rw [← zpow_natCast (Z d) d]
+    rw [← Matrix.zpow_mul (Z d) (isUnit_Z_det d) d (-k)]--, ← Matrix.zpow_add (isUnit_X_det d)]; ring_nf
+    rw [← Matrix.zpow_add (isUnit_Z_det d)]
+    simp-/
+
+  have h (k : ℤ) (ℓ : ℤ) (hk0 : k ≥ 0) (hl0 : ℓ ≥ 0) : (Z d) ^ k * (X d) ^ ℓ = (ω d) ^ (k * ℓ) •((X d) ^ ℓ * (Z d) ^ k) := by
+    lift k to ℕ using hk0
+    lift ℓ to ℕ using hl0
+    rw [zpow_natCast, zpow_natCast]
     induction ℓ with
     | zero => simp
     | succ ℓ ih =>
+      push_cast
       nth_rw 1 [pow_succ']
+      --nth_rw 1 [show (↑ ℓ + 1 : ℤ) = 1 + ↑ ℓ from add_comm  _ _]
+      --rw [Matrix.zpow_one_add (isUnit_X_det d)]
       nth_rw 1 [← mul_assoc]
       have h (m : ℕ) (n : ℕ) : Z d ^ m * X d * X d ^ n =  ω d ^ m • X d * Z d ^ m * X d ^ n := by
         induction m with
@@ -225,6 +257,7 @@ lemma Z_pow_X_pow_eq_omega_mul_X_pow_Z_pow (k : ℤ) (ℓ : ℤ) :
           rw [smul_smul]
           rw [← pow_succ]
 
+      --rw [zpow_natCast, zpow_natCast]
       rw [h]
       nth_rw 1 [mul_assoc]
       rw [Matrix.smul_mul]
@@ -232,20 +265,76 @@ lemma Z_pow_X_pow_eq_omega_mul_X_pow_Z_pow (k : ℤ) (ℓ : ℤ) :
       rw [ih]
       rw [smul_smul]
       simp
-      rw [← pow_add]
+      rw [← zpow_natCast (ω d) k]
+      rw [← zpow_add₀ (omega_ne_zero d)]
+      --rw [← pow_add]
       rw [← mul_one_add]
       rw [← mul_assoc]
       rw [← pow_succ']
       rw [add_comm]
-    -/
-  rcases lt_or_ge k 0 with h1 | h1
+  --#check Int.natCast_nonneg
 
-  sorry
+  --rw [(Int.natCast_nonneg k)]
+  rcases lt_or_ge k 0 with h1 | h1
   rcases lt_or_ge ℓ 0 with h2 | h2
-  sorry
-  lift k to ℕ using h1
-  lift ℓ to ℕ using h2
-  rw [(h k ℓ)]
+  rw [hxk]
+  rw [hzk]
+  rw [h]
+  ring
+
+  rw [zpow_add₀ (omega_ne_zero d)]
+  rw [pow_two]
+  rw [← mul_neg_one]
+  rw [mul_assoc]
+  rw [mul_assoc]
+  rw [mul_assoc]
+  nth_rw 1 [mul_assoc]
+  nth_rw 1 [mul_assoc]
+  rw [← mul_add]
+
+  #check pow_add
+  rw [zpow_mul]
+  simp
+  rw [omega_pow_d_eq_one]
+  simp
+  exact (dk k h1)
+  exact (dk ℓ h2)
+
+  --
+  · rw [hzk]
+    rw [h]
+    rw [add_mul]
+    rw [zpow_add₀ (omega_ne_zero d)]
+    simp
+    rw [mul_assoc]
+    rw [zpow_mul]
+    simp
+    rw [omega_pow_d_eq_one]
+    simp
+    exact (dk k h1)
+    exact h2
+
+  rcases lt_or_ge ℓ 0 with h2 | h2
+  · rw [hxk]
+    rw [h]
+    simp
+    rw [mul_add]
+    simp
+    rw [zpow_add₀ (omega_ne_zero d)]
+    simp
+    rw [← mul_assoc]
+    rw [mul_comm k ↑d]
+    rw [mul_assoc]
+    rw [zpow_mul]
+    simp
+    rw [omega_pow_d_eq_one]
+    simp
+    exact h1
+    exact (dk ℓ h2)
+  · rw [h]
+    exact h1
+    exact h2
+
 ```
 
 And also backwards
