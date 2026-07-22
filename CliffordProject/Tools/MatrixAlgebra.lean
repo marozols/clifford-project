@@ -1,18 +1,27 @@
+import Verso
+import VersoManual
+import VersoBlueprint
+
+import CliffordProject.LaTeXMacros
+import CliffordProject.Authors
+import CliffordProject.Bibliography
+
+
 /-
     A file aimed at implementing Algebra tools relative to matrices :
-    Auto equality check
+    Auto equality check for finite dimension
 -/
-module
 
-public import Mathlib.Algebra.Ring.Basic
-public import Mathlib.LinearAlgebra.Matrix.Defs
-public import Mathlib.Data.Matrix.Reflection
 
-public import Mathlib.Data.ZMod.Basic
-public import Mathlib.Data.Complex.Basic
+import Mathlib.Algebra.Ring.Basic
+import Mathlib.LinearAlgebra.Matrix.Defs
+import Mathlib.Data.Matrix.Reflection
 
-public import Mathlib.Analysis.SpecialFunctions.Complex.Circle
-public import Mathlib.RingTheory.RootsOfUnity.Complex
+import Mathlib.Data.ZMod.Basic
+import Mathlib.Data.Complex.Basic
+
+import Mathlib.Analysis.SpecialFunctions.Complex.Circle
+import Mathlib.RingTheory.RootsOfUnity.Complex
 import Mathlib.LinearAlgebra.Matrix.ConjTranspose
 
 namespace MatrixAlgebraTools

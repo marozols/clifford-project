@@ -106,21 +106,21 @@ for all $`\p \in \mathbb{Z}^2`.
 
 ```lean "clifford_symplectic_action"
 variable (d : ℕ) [NeZero d]
-open Matrix in
-theorem clifford_symplectic_action
-    (hodd: Odd d)
-    (U : cliffordGroup d) :
-    ∃ F : Matrix.symplecticGroup (Fin 1) (ℤ),
-    ∃ χ : ℤ × ℤ,
-    ∀ p : Fin 1 ⊕ Fin 1 → ℤ,
-    U.val.val * (D d ⟨p (Sum.inl 0), p (Sum.inl 1)⟩)
-      * U.val.val.conjTranspose =
-    ω d ^ (symp χ ⟨(F.val *ᵥ p) (Sum.inl 0),
-        (F.val *ᵥ p) (Sum.inl 1)⟩) •
-      D d ⟨(F.val *ᵥ p) (Sum.inl 0),
-        (F.val *ᵥ p) (Sum.inl 1)⟩
-    := by
-  sorry
+--open Matrix in
+--theorem clifford_symplectic_action
+--    (hodd: Odd d)
+--    (U : cliffordGroup d) :
+--    ∃ F : Matrix.symplecticGroup (Fin 1) (ℤ),
+--    ∃ χ : ℤ × ℤ,
+--    ∀ p : Fin 1 ⊕ Fin 1 → ℤ,
+--    U.val.val * (D d ⟨p (Sum.inl 0), p (Sum.inl 1)⟩)
+--      * U.val.val.conjTranspose =
+--    ω d ^ (symp χ ⟨(F.val *ᵥ p) (Sum.inl 0),
+--        (F.val *ᵥ p) (Sum.inl 1)⟩) •
+--      D d ⟨(F.val *ᵥ p) (Sum.inl 0),
+--        (F.val *ᵥ p) (Sum.inl 1)⟩
+--    := by
+--  sorry
   /-
   obtain ⟨U, hU⟩ := U
   have h := cliffordGroupAction d U hU
