@@ -44,6 +44,14 @@ macro "matrix_equality" : tactic => `(tactic| ext i j <;> simp <;> rw[MatrixProd
 
 
 /-
+    Unit complex to Complex coercion
+-/
+
+@[default_instance]
+public instance : Coe ℂˣ ℂ where
+  coe := fun z => z.val
+
+/-
     Tuple to vector coercion
 -/
 

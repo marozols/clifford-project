@@ -141,7 +141,7 @@ This transformation is defined as the Diagonal matrix where the $`i`-th entry is
 omit [NeZero d] in
 @[reducible]
 noncomputable def diag_omega_pow : (ZMod d → ℂ)ˣ :=
-  .mk (fun i => (ω d).val ^ i.val) (fun i => (ω d).val ^ (-i).val)
+  .mk (fun i => (ω d) ^ i.val) (fun i => (ω d) ^ (-i).val)
     (by ext i; simp; rw[<- pow_add, omega_val_pow_n_mod_d d (i.val + (-i).val), <- ZMod.val_add]; simp)
     (by ext i; simp; rw[<- pow_add, omega_val_pow_n_mod_d d ((-i).val + i.val), <- ZMod.val_add]; simp)
 
@@ -183,7 +183,7 @@ Much like $`X`, $`Z` is a unitary transformation. That is, $`Z^{\dagger} = Z^{-1
 @[simp]
 lemma Z_inv : (Z d)† = (Z d)⁻¹ := by
   unfold Z; simp; rw[Matrix.inv_diagonal]; simp; intro i;
-  rw[diag_omega_pow_inv]
+  rw[diag_omega_pow_inv, omega_inv_pow_val];
 ```
 
 The Pauli $`Z` matrix also has order $`d`.
@@ -207,6 +207,12 @@ lemma Z_pow_d_eq_one : (Z d) ^ d = 1 := by
   rw [Z_pow_n]; simp; ext i
   rw [pow_mul, omega_val_pow_d_eq_one, one_pow]
   rfl
+```
+
+```lean "isUnit_Z_det"
+lemma isUnit_Z_det : IsUnit (Z d).det := by
+  unfold Z; rw[Matrix.det_diagonal]; apply (IsUnit.prod_iff).mpr;
+  intro a; simp
 ```
 
 Pauli $`X` and $`Z` commute up to a phase.
@@ -301,7 +307,10 @@ lemma X_pow_eq_mod_d (x y : ℕ) :
 ```
 
 ```lean "X_inv_pow"
-lemma X_inv_pow (x : ZMod d) :
+lemma X_inv_pow (x : ℤ) : (X d)⁻¹ ^ x = (X d) ^ (-x) :=
+  by rw[Matrix.inv_zpow, Matrix.zpow_neg]; apply isUnit_X_det
+
+lemma X_inv_pow' (x : ZMod d) :
   ((X d)^(x.val)).conjTranspose =
   (X d)^((-x).val):= by
   simp; rw[ZMod.neg_val]; by_cases hx : x = 0
@@ -325,17 +334,14 @@ lemma Z_pow_eq_mod_d :  (x: ℕ) → (y: ℕ) →
 ```
 
 ```lean "Z_inv_pow"
-lemma Z_inv_pow : (x: ZMod d) →
+lemma Z_inv_pow (x : ℤ) : (Z d)⁻¹ ^ x = (Z d) ^ (-x) :=
+  by rw[Matrix.inv_zpow, Matrix.zpow_neg]; apply isUnit_Z_det
+
+lemma Z_inv_pow' : (x: ZMod d) →
   ((Z d)^(x.val)).conjTranspose  =
   (Z d)^((-x).val):= by
   -- This is exactly the same proof as for X,
   -- maybe we can consolidate
   intro x; simp; sorry
   --rw [(Nat.mod_eq_of_lt (ZMod.val_lt (-x)))]
-```
-
-```lean "isUnit_Z_det"
-lemma isUnit_Z_det : IsUnit (Z d).det := by
-  unfold Z; rw[Matrix.det_diagonal]; apply (IsUnit.prod_iff).mpr;
-  intro a; simp
 ```

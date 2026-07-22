@@ -60,9 +60,11 @@ where $`\dagger` denotes the conjugate transpose.
 :::
 
 ```lean "D_conj"
+@[simp]
 lemma conjTranspose_D (p : ℤ × ℤ) :
-    (D d p).conjTranspose = D d (-p) := by
-    unfold D; simp; sorry
+    (D d p)† = D d (-p) := by
+    unfold D; simp; rw[Z_inv_pow, X_inv_pow]; sorry
+    -- need the backwards relation for ZX_XZ and the fact that τ^2 = ω
 ```
 
 Multiplication of displacement operators corresponds to adding their subscripts and introducing a phase given by the symplectic inner product, see Eq. (10) in {citet Appleby}[].

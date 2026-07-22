@@ -76,14 +76,10 @@ lemma omega_one' (hd : d = 1) : ω d = 1 := by
   rw[hd]; simp
 ```
 
-:::lemma_ "omega_inv_pow" (parent := "roots_of_unity") (effort := "small") (owner := "William_Hasley")
-Let $`i ∈ ℤ_d`, then $`\left(\omega^{i}\right)^{-1} = \omega^{-i}`
-:::
-
-```lean "omega_inv_pow"
-@[simp]
-lemma omega_inv_pow (i : ZMod d) : ((ω d).val ^ i.val)⁻¹ = (ω d).val ^ (-i).val
-  := by sorry;
+```lean "omega_val_pow_commutes"
+omit [NeZero d] in
+lemma omega_val_pow_commutes (i : ℕ) : ((ω d) ^ i).val = (ω d).val ^ i
+  := by simp
 ```
 
 :::lemma_ "omega_pow_d_eq_one" (parent := "roots_of_unity") (effort := "small") (owner := "Maris_Ozols")
@@ -108,10 +104,45 @@ lemma omega_pow_d_eq_one : (ω d)^d = 1 := by
         := by rw[Complex.mul_inv_cancel, one_mul]; simp; apply hd
       _ = 1 := by rw[mul_comm, <- mul_assoc, Complex.exp_two_pi_mul_I];
 
+omit [NeZero d] in
 @[simp]
 lemma omega_val_pow_d_eq_one : ((ω d).val) ^ d = 1 := by
   rw[<- Units.val_pow_eq_pow_val, omega_pow_d_eq_one]; simp
 ```
+
+
+:::lemma_ "omega_pow_of_inv" (parent := "roots_of_unity") (effort := "small") (owner := "William_Hasley")
+Let $`i ∈ ℤ`, then $`\left(\omega^{-1}\right)^i = \omega^{d - i}`
+:::
+
+```lean "omega_pow_of_inv"
+omit [NeZero d] in
+lemma omega_pow_of_inv (i : ℤ) : (ω d)⁻¹ ^ i = (ω d) ^ (-i)
+  := by rw[zpow_neg]; simp
+```
+
+:::lemma_ "omega_inv_pow" (parent := "roots_of_unity") (effort := "small") (owner := "William_Hasley")
+Let $`i ∈ ℤ_d`, then $`\left(\omega^{i}\right)^{-1} = \omega^{-i}`
+:::
+
+```lean "omega_inv_pow"
+
+lemma omega_inv_pow (i : ZMod d) : ((ω d) ^ i.val)⁻¹ = (ω d) ^ (-i).val
+  := by rw[<- inv_pow (ω d) i.val]; unfold ω; ext; simp;
+        rw[<- Complex.exp_nat_mul, <- Complex.exp_nat_mul];
+        rw[ZMod.neg_val]; by_cases hi : i = 0
+        · rw[hi]; simp
+        · rw[ite_cond_eq_false, Nat.cast_sub, sub_mul]; ring_nf;
+          rw[Complex.exp_add]; simp; rw[mul_comm, mul_assoc]; simp
+          rw[<- mul_assoc, Complex.exp_two_pi_mul_I]; apply ZMod.val_le; apply eq_false hi
+
+lemma omega_inv_pow_val (i : ZMod d) : ((ω d).val ^ i.val)⁻¹ = (ω d).val ^ (-i).val
+  := by calc
+    ((ω d).val ^ i.val)⁻¹ = (((ω d) ^ i.val)⁻¹).val := by simp
+    _ = ((ω d) ^ (-i).val).val := by rw[omega_inv_pow]
+    _ = (ω d).val ^ (-i).val := by simp
+```
+
 
 :::lemma_ "omega_star"
 For $`z ∈ \mathbb{C}`, let $`z^*` denote the usual complex conjugate of $`z`. Then $`\omega^* = \omega^{-1}`
@@ -156,14 +187,14 @@ $`ω^n = ω^{n \mod d}`.
 
 ```lean "omega_pow_n_mod_d"
 lemma omega_pow_n_mod_d :
-  ∀ n : Nat, (ω d) ^ n = (ω d) ^ (n % d) := by
+  ∀ n : ℕ, (ω d) ^ n = (ω d) ^ (n % d) := by
     intro n
     nth_rw 1 [←(Nat.mod_add_div n d)]
     rw [pow_add, pow_mul, omega_pow_d_eq_one,
       one_pow, mul_one]
 
 lemma omega_val_pow_n_mod_d :
-  ∀ n : Nat, (ω d).val ^ n = (ω d).val ^ (n % d) := by
+  ∀ n : ℕ, (ω d).val ^ n = (ω d).val ^ (n % d) := by
     intro n
     nth_rw 1 [←(Nat.mod_add_div n d)]
     rw [pow_add, pow_mul, omega_val_pow_d_eq_one,
@@ -182,7 +213,7 @@ lemma omega_pow_k_mod_d_eq_pow_k_int :
 
 ```lean "omega_pow_k_mod_d_eq_pow_k_zmod"
 lemma omega_pow_k_mod_d_eq_pow_k_zmod :
-  ∀ k : Int, (ω d) ^ k = (ω d) ^ (k : ZMod d).val := by
+  ∀ k : ℤ, (ω d) ^ k = (ω d) ^ (k : ZMod d).val := by
     intro k
     rw [omega_pow_k_mod_d_eq_pow_k_int]
     rw [(Eq.symm (ZMod.val_intCast k))]
@@ -210,8 +241,21 @@ Some basic lemmas about $`\tau`
 Much like $`\omega`, since $`τ` lies on the Unit circle, one has $`\tau^* = \tau^{-1}`
 :::
 
-```lean "tau_star"
-lemma tau_star (d : ℕ) (n : ℤ) [NeZero d] :
+
+
+```lean "tau_star_pow"
+omit [NeZero d] in
+@[simp]
+lemma tau_star_val : star (τ d).val = (τ d).val⁻¹ :=
+  by rw[Complex.inv_def]; simp; unfold τ; simp;
+      rw[<- Complex.sq_norm, Complex.norm_exp]; simp
+
+omit [NeZero d] in
+@[simp]
+lemma tau_star : star (τ d) = (τ d)⁻¹ :=
+  by ext; simp
+
+lemma tau_star_pow (d : ℕ) (n : ℤ) [NeZero d] :
     star (τ d ^ n)  = (τ d)^(-n) := by
   unfold τ; ext; simp; rw[← Complex.exp_conj]; simp;
   rw [← neg_one_mul, mul_zpow]; nth_rw 3 [← neg_one_mul]; rw[mul_zpow]; simp;
